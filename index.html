@@ -1,0 +1,1680 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>새결 오토필름 전자보증서 데모</title>
+<meta name="description" content="자동차 필름·코팅 시공 보증서를 보증번호로 조회하고, 대리점이 발급하면 본사 구글 시트에 쌓이는 구조를 보여 주는 데모예요. 회사와 고객 정보는 모두 예시예요.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23191F28'/%3E%3Cpath d='M6 21 26 9' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style id="tokens">
+:root{
+  color-scheme: light;
+
+  /* 브랜드 색 — 팔레트 A 블루(기본). 화면당 주요 버튼·선택 상태·강조 데이터에만 */
+  --brand:#2457F5;        /* 흰 글자 대비 5.6:1 */
+  --brand-hover:#1B45D6;
+  --brand-press:#1638B0;
+  --brand-text:#1B45D6;   /* 연한 바탕 위 브랜드 글자 */
+  --brand-tint:#EEF3FF;   /* 아주 연한 바탕 */
+  --brand-tint-2:#D9E4FF; /* 약한 막대·선택 칸 */
+  --ring:0 0 0 3px rgba(36,87,245,.25);
+  --on-brand:#FFFFFF;
+
+  /* 회색 — 살짝 푸른 회색 */
+  --bg:#F2F4F7;     /* 페이지 바탕 */
+  --card:#FFFFFF;   /* 카드 */
+  --soft:#F7F8FA;   /* 표 머리줄·카드 안 연한 칸 */
+  --track:#ECEFF3;  /* 알약 내비·세그먼트 바탕 */
+  --line:#E5E8EB;   /* 입력칸·표 선 */
+  --line-2:#EBEEF2; /* 카드 테두리·구분선 */
+  --ink:#191F28;    /* 제목·본문 */
+  --ink-2:#4E5968;  /* 보조 본문 */
+  --mut:#636D7B;    /* 설명·라벨 (흰·회색 바탕 모두 4.5:1 이상) */
+  --mut-2:#9AA3AE;  /* placeholder·비활성 전용 (본문 금지) */
+
+  /* 상태 색 — 글자 / 바탕 / 점 */
+  --ok:#127A4F;   --ok-bg:#E3F6ED;   --ok-dot:#1FA971;
+  --warn:#7A5600; --warn-bg:#FFF3D4; --warn-dot:#F2B01E;
+  --bad:#BF2930;  --bad-bg:#FFE3E4;  --bad-dot:#E5484D;
+  --info:#175CD3; --info-bg:#EAF2FF; --info-dot:#2E7CF6;
+  --neu:#4E5968;  --neu-bg:#F0F2F5;  --neu-dot:#8B95A1;
+
+  /* 글꼴과 크기 */
+  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --fs-12:12px; --fs-13:13px; --fs-14:14px; --fs-15:15px; --fs-17:17px;
+  --fs-20:20px; --fs-24:24px; --fs-32:32px; --fs-44:44px;
+  --lh-tight:1.3; --lh-body:1.6;
+
+  /* 간격 — 4의 배수만 */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px;
+  --sp-6:24px; --sp-8:32px; --sp-10:40px; --sp-12:48px; --sp-16:64px;
+
+  /* 모서리 — 역할별 */
+  --r-sm:8px;    /* 툴팁·체크박스·작은 버튼 칸 */
+  --r-md:12px;   /* 입력칸·드롭다운·하단 CTA */
+  --r-lg:20px;   /* 카드 */
+  --r-xl:28px;   /* 바텀시트·큰 패널 */
+  --r-pill:999px;/* 버튼·칩·알약 내비 */
+
+  /* 그림자 — 카드는 선만, 떠 있는 것만 그림자 */
+  --sh-pill:0 1px 2px rgba(16,24,40,.08);
+  --sh-pop:0 2px 6px rgba(16,24,40,.06),0 12px 32px rgba(16,24,40,.12);
+
+  /* 높이 */
+  --h-sm:32px; --h-md:40px; --h-lg:48px; --h-cta:52px;
+  --container:1200px;
+}
+</style>
+<style>
+/* ===== 기본 (컴포넌트키트 기준) ===== */
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:var(--fs-15);line-height:var(--lh-body);word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,p,figure,dl,dd{margin:0}
+ul,ol{margin:0;padding:0;list-style:none}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic-s{width:16px;height:16px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:calc(var(--container) + 48px);margin:0 auto;padding:0 var(--sp-6)}
+@media (max-width:640px){.wrap{padding:0 var(--sp-4)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition:none!important}}
+
+/* 버튼 */
+.btn{--h:var(--h-md);display:inline-flex;align-items:center;justify-content:center;gap:6px;height:var(--h);padding:0 16px;border-radius:var(--r-pill);border:1px solid transparent;font-size:var(--fs-14);font-weight:600;line-height:1;white-space:nowrap;text-decoration:none;transition:background-color .15s,border-color .15s,color .15s}
+.btn .ic{width:18px;height:18px}
+.btn-lg{--h:var(--h-lg);padding:0 24px;font-size:var(--fs-15)}
+.btn-sm{--h:var(--h-sm);padding:0 12px;font-size:var(--fs-13)}
+.btn-sm .ic{width:16px;height:16px}
+.btn-primary{background:var(--brand);color:var(--on-brand)}
+.btn-primary:hover{background:var(--brand-hover)}
+.btn-primary:active{background:var(--brand-press)}
+.btn-secondary{background:var(--card);border-color:var(--line);color:var(--ink)}
+.btn-secondary:hover{background:var(--soft);border-color:#D5DAE0}
+.btn-secondary:active{background:var(--track)}
+.btn-ghost{background:transparent;color:var(--ink-2)}
+.btn-ghost:hover{background:var(--track);color:var(--ink)}
+.btn:disabled{background:var(--track);border-color:transparent;color:var(--mut-2);cursor:not-allowed}
+.btn.is-loading{cursor:progress}
+.btn-cta{--h:var(--h-cta);width:100%;border-radius:var(--r-md);font-size:var(--fs-17)}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ib{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);display:inline-grid;place-items:center;color:var(--ink);flex:none;padding:0}
+.ib:hover{background:var(--soft)}
+.ib-s{width:32px;height:32px}
+.ib-plain{border-color:transparent;background:transparent}
+.ib-plain:hover{background:var(--track)}
+.link{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-14);font-weight:600;color:var(--ink-2);text-decoration:none;background:none;border:0;padding:4px 0;white-space:nowrap}
+.link:hover{color:var(--ink)}
+.link-brand{color:var(--brand-text)}
+.link-brand:hover{color:var(--brand-press)}
+
+/* 칩 */
+.chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 9px;border-radius:var(--r-pill);font-size:var(--fs-12);font-weight:600;white-space:nowrap;line-height:1}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;flex:none}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}.chip.ok::before{background:var(--ok-dot)}
+.chip.warn{background:var(--warn-bg);color:var(--warn)}.chip.warn::before{background:var(--warn-dot)}
+.chip.neu{background:var(--neu-bg);color:var(--neu)}.chip.neu::before{background:var(--neu-dot)}
+.chip.info{background:var(--info-bg);color:var(--info)}.chip.info::before{background:var(--info-dot)}
+.chip.on-white{background:var(--card)}
+.tag{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:6px;background:var(--soft);border:1px solid var(--line-2);font-size:var(--fs-12);color:var(--ink-2);white-space:nowrap}
+.fchip{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--card);font-size:var(--fs-14);font-weight:500;color:var(--ink-2);white-space:nowrap;flex:none}
+.fchip:hover{border-color:#D5DAE0;color:var(--ink)}
+.fchip .n{color:var(--mut);font-weight:600;font-variant-numeric:tabular-nums}
+.fchip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+.fchip[aria-pressed="true"] .n{color:inherit;opacity:.8}
+
+/* 카드·폼 */
+.card{background:var(--card);border:1px solid var(--line-2);border-radius:var(--r-lg);padding:var(--sp-6);min-width:0}
+@media (max-width:640px){.card{padding:var(--sp-5)}}
+.ch{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--sp-3);margin-bottom:var(--sp-4)}
+.ch h3,.ch h2{font-size:var(--fs-17);font-weight:600;letter-spacing:-.02em;line-height:var(--lh-tight)}
+.ch p{font-size:var(--fs-13);color:var(--mut);margin-top:4px}
+.field{display:grid;gap:var(--sp-2);min-width:0;align-content:start}
+.label{font-size:var(--fs-14);font-weight:600;color:var(--ink)}
+.label .req{color:var(--bad);margin-left:2px}
+.label .opt{color:var(--mut);font-weight:400;margin-left:4px}
+.input{height:var(--h-lg);width:100%;border:1px solid var(--line);border-radius:var(--r-md);padding:0 14px;font-size:var(--fs-15);background:var(--card);color:var(--ink);transition:border-color .15s,box-shadow .15s;min-width:0}
+.input::placeholder{color:var(--mut-2)}
+.input:hover{border-color:#D1D6DB}
+.input:focus{outline:0;border-color:var(--brand);box-shadow:var(--ring)}
+.input[aria-invalid="true"]{border-color:var(--bad-dot)}
+.input[aria-invalid="true"]:focus{box-shadow:0 0 0 3px rgba(229,72,77,.2)}
+select.input{appearance:none;-webkit-appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23636D7B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.help{font-size:var(--fs-13);color:var(--mut)}
+.affix{position:relative}
+.affix .input{padding-right:40px;text-align:right;font-variant-numeric:tabular-nums}
+.affix .sfx{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--mut);font-size:var(--fs-15);pointer-events:none}
+.sh-grid td.r{text-align:right}
+.err{font-size:var(--fs-13);color:var(--bad);display:flex;gap:6px;align-items:flex-start;font-weight:500}
+.err .ic{width:16px;height:16px;margin-top:2px}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-4)}
+@media (max-width:640px){.row2{grid-template-columns:1fr;gap:var(--sp-5)}}
+.rchips{display:flex;gap:var(--sp-2);flex-wrap:wrap;border:0;margin:0;padding:0;min-width:0}
+.rc{position:relative}
+.rc input{position:absolute;opacity:0;width:1px;height:1px}
+.rc span{display:inline-flex;align-items:center;gap:6px;height:var(--h-md);padding:0 16px;border:1px solid var(--line);border-radius:var(--r-pill);font-size:var(--fs-14);font-weight:500;color:var(--ink-2);background:var(--card);cursor:pointer;white-space:nowrap}
+.rc span:hover{border-color:#D1D6DB}
+.rc input:checked+span{border-color:var(--brand);background:var(--brand-tint);color:var(--brand-text);font-weight:600}
+.rc input:focus-visible+span{box-shadow:var(--ring)}
+.rc .ic{width:16px;height:16px;display:none}
+.rc input:checked+span .ic{display:block}
+
+/* 토스트 */
+.toast-live{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,16px);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:80;width:max-content;max-width:calc(100% - 32px)}
+.toast-live.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast-live.lift{bottom:calc(96px + env(safe-area-inset-bottom))}
+.toast{display:flex;align-items:center;gap:12px;background:var(--ink);color:#fff;border-radius:var(--r-md);padding:12px 16px 12px 12px;font-size:var(--fs-14);box-shadow:var(--sh-pop)}
+.toast .ok-ic{width:24px;height:24px;border-radius:50%;background:var(--ok-dot);display:grid;place-items:center;flex:none;color:#fff}
+.toast .ok-ic .ic{width:14px;height:14px;stroke-width:2.6}
+.toast .ok-ic.warn{background:var(--warn-dot);color:var(--ink)}
+.toast .ok-ic.info{background:#4E5968}
+
+/* ===== 데모 바 (고객 사이트 밖) ===== */
+.demobar{background:var(--ink);color:#fff}
+.db-in{display:flex;align-items:center;gap:var(--sp-3);min-height:56px}
+.db-tag{font-size:var(--fs-12);font-weight:700;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.14);flex:none}
+.db-title{font-size:var(--fs-13);color:#C9D1DB;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.db-title b{color:#fff;font-weight:600;margin-right:8px}
+.db-seg{margin-left:auto;display:flex;background:rgba(255,255,255,.1);border-radius:var(--r-pill);padding:4px;gap:2px;flex:none}
+.db-seg button{height:36px;padding:0 16px;border:0;background:none;color:#C9D1DB;font-size:var(--fs-14);font-weight:500;border-radius:var(--r-pill);white-space:nowrap}
+.db-seg button:hover{color:#fff}
+.db-seg button[aria-selected="true"]{background:#fff;color:var(--ink);font-weight:600}
+.db-seg button:focus-visible{outline-color:#fff}
+@media (max-width:760px){
+  .db-title{display:none}
+  .db-seg{flex:1}
+  .db-seg button{flex:1;padding:0 8px}
+}
+
+/* ===== 고객: 카페24 사이트 틀 ===== */
+.site{background:var(--soft);min-height:calc(100vh - 56px);display:flex;flex-direction:column;--cw:948px}
+.site>.wrap,.site>header,.site>footer{width:100%}
+.site>.s-bh{max-width:calc(var(--cw) + 48px)}
+@media (max-width:1023px){.site{--cw:560px}}
+@media (max-width:640px){.site>.s-bh{max-width:calc(var(--cw) + 32px)}}
+.s-head{background:var(--card);border-bottom:1px solid var(--line-2)}
+.s-head-in{display:flex;align-items:center;gap:var(--sp-8);height:72px}
+.s-logo{display:flex;align-items:center;gap:var(--sp-2);font-weight:700;font-size:var(--fs-17);letter-spacing:-.02em;text-decoration:none;color:var(--ink);white-space:nowrap}
+.s-mark{width:28px;height:28px;border-radius:var(--r-sm);background:var(--ink);display:grid;place-items:center;flex:none}
+.s-mark svg{width:20px;height:20px}
+.s-nav{display:flex;gap:28px;height:100%}
+.s-nav a{font-size:var(--fs-15);color:var(--ink-2);text-decoration:none;display:flex;align-items:center;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.s-nav a:hover{color:var(--ink)}
+.s-nav a[aria-current="page"]{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
+.s-tools{margin-left:auto;display:flex;align-items:center;gap:var(--sp-1)}
+.s-tools .t-txt{font-size:var(--fs-14);color:var(--ink-2);text-decoration:none;padding:8px}
+.s-menu{display:none}
+@media (max-width:1023px){
+  .s-head-in{height:56px;gap:var(--sp-2)}
+  .s-nav,.s-tools .t-txt{display:none}
+  .s-menu{display:inline-grid;margin-left:-8px}
+}
+.s-bh{padding-top:var(--sp-10);padding-bottom:var(--sp-6)}
+.crumb{display:flex;align-items:center;gap:4px;font-size:var(--fs-13);color:var(--mut);flex-wrap:wrap}
+.crumb .ic{width:14px;height:14px}
+.crumb b{color:var(--ink-2);font-weight:600}
+@media (max-width:640px){.crumb{display:none}.s-bh .greet,.cert-top{margin-top:0}}
+.greet{display:flex;flex-direction:column;gap:4px;margin-top:var(--sp-3)}
+.greet span{font-size:var(--fs-17);color:var(--mut);font-weight:500;line-height:var(--lh-tight)}
+.greet b{font-size:var(--fs-32);font-weight:700;letter-spacing:-.03em;line-height:var(--lh-tight)}
+@media (max-width:640px){
+  .s-bh{padding-top:var(--sp-5);padding-bottom:var(--sp-5)}
+  .greet span{font-size:var(--fs-15)}
+  .greet b{font-size:var(--fs-24)}
+}
+.c-grid{display:grid;grid-template-columns:minmax(0,560px) 340px;gap:var(--sp-12);justify-content:center;align-items:start;padding-bottom:var(--sp-16);flex:1}
+.c-main{display:grid;gap:var(--sp-3);min-width:0}
+.c-aside{display:grid;gap:var(--sp-3);min-width:0}
+.site.has-cert #whereCard{display:none}
+@media (max-width:1023px){.site.has-cert .c-aside{display:none}}
+@media (max-width:1023px){.c-grid{grid-template-columns:minmax(0,560px);gap:var(--sp-3)}}
+.s-foot{background:var(--card);border-top:1px solid var(--line-2);padding:var(--sp-6) 0 var(--sp-8);font-size:var(--fs-12);color:var(--mut);line-height:1.7}
+.s-foot b{color:var(--ink-2);font-weight:600}
+.s-foot .c24{margin-top:var(--sp-2);color:var(--mut)}
+
+/* 조회 카드 */
+.lk-card{display:grid;gap:var(--sp-5);border-radius:var(--r-lg)}
+.input-code{height:56px;font-size:var(--fs-20);font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-variant-numeric:tabular-nums}
+.input-code::placeholder{letter-spacing:.04em;font-weight:500}
+.input-pin{font-size:var(--fs-17);font-weight:600;letter-spacing:.2em;font-variant-numeric:tabular-nums}
+.input-pin::placeholder{letter-spacing:.1em;font-weight:500}
+.lk-msg{display:flex;gap:var(--sp-3);padding:var(--sp-4);border-radius:var(--r-md);background:var(--bad-bg);color:var(--bad)}
+.lk-msg .ic{margin-top:2px}
+.lk-msg b{display:block;font-size:var(--fs-15);font-weight:700;color:var(--bad)}
+.lk-msg p{font-size:var(--fs-14);color:var(--ink-2);margin-top:2px}
+.lk-msg.neu{background:var(--neu-bg);color:var(--neu)}
+.lk-msg.neu b{color:var(--ink)}
+.lk-msg .link{margin-top:var(--sp-2);font-size:var(--fs-13)}
+/* 체험용 번호 */
+.try-h{display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-2);margin-bottom:var(--sp-2)}
+.try-h h2{font-size:var(--fs-15);font-weight:600}
+.try-h small{font-size:var(--fs-12);color:var(--mut)}
+.try-list{display:grid}
+.try-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px var(--sp-3);align-items:center;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line-2);padding:var(--sp-3) 0;min-height:56px}
+.try-row:first-child{border-top:0}
+.try-row:hover .try-car{color:var(--brand-text)}
+.try-car{font-size:var(--fs-14);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.try-no{font-size:var(--fs-12);color:var(--mut);font-variant-numeric:tabular-nums;white-space:nowrap;grid-column:2}
+.try-row .chip{grid-row:1/3;width:72px;justify-content:center}
+.try-x{display:flex;gap:var(--sp-4);flex-wrap:wrap;margin-top:var(--sp-2);padding-top:var(--sp-3);border-top:1px solid var(--line-2)}
+.try-x .link{font-size:var(--fs-13)}
+/* 번호 안내 */
+.kmsg{background:var(--soft);border-radius:var(--r-md);padding:var(--sp-4);font-size:var(--fs-13);color:var(--ink-2);line-height:1.7;white-space:pre-line}
+.kmsg mark{background:var(--brand-tint-2);color:var(--ink);font-weight:700;border-radius:4px;padding:0 4px}
+.faq{}
+.faq details{border-bottom:1px solid var(--line-2)}
+.faq details:last-child{border-bottom:0}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:var(--sp-2);min-height:48px;font-size:var(--fs-14);font-weight:600}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .ic{color:var(--mut);transition:transform .15s}
+.faq details[open] summary .ic{transform:rotate(180deg)}
+.faq details p{font-size:var(--fs-13);color:var(--ink-2);padding-bottom:var(--sp-3)}
+
+/* 보증서 */
+.cert-top{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-2);margin-top:var(--sp-3)}
+.cert-top .num{font-size:var(--fs-13);color:var(--mut)}
+.hero{border-radius:var(--r-xl);padding:var(--sp-6);display:grid;gap:var(--sp-5);background:var(--ok-bg)}
+.hero.warn{background:var(--warn-bg)}
+.hero.end{background:var(--neu-bg)}
+.hero-h{display:flex;justify-content:space-between;align-items:center}
+.hero .chip{background:var(--card)}
+.circle{width:44px;height:44px;border-radius:50%;border:0;background:var(--card);display:grid;place-items:center;color:var(--ink);padding:0}
+.circle:hover{background:#FBFCFD;box-shadow:var(--sh-pill)}
+.hero .greet{margin-top:0}
+.hero .greet span{font-size:var(--fs-15);color:var(--ink-2)}
+.hero .greet b{font-size:var(--fs-24)}
+.meter{height:8px;border-radius:var(--r-pill);background:rgba(255,255,255,.8);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:inherit;background:var(--ok-dot)}
+.hero.warn .meter i{background:var(--warn-dot)}
+.hero.end .meter i{background:var(--neu-dot)}
+.meter-f{display:flex;justify-content:space-between;gap:var(--sp-2);margin-top:var(--sp-2);font-size:var(--fs-13);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.meter-f b{color:var(--ink);font-weight:700}
+.kv{display:grid}
+.kv div{display:grid;grid-template-columns:96px minmax(0,1fr);gap:var(--sp-3);padding:var(--sp-3) 0;border-top:1px solid var(--line-2);font-size:var(--fs-15)}
+.kv div:first-child{border-top:0;padding-top:0}
+.kv div:last-child{padding-bottom:0}
+.kv dt{color:var(--mut);font-size:var(--fs-14);padding-top:1px}
+.kv dd{font-weight:600;min-width:0}
+.kv dd small{display:block;font-size:var(--fs-13);color:var(--mut);font-weight:400}
+.items{display:grid}
+.items li{padding:var(--sp-4) 0;border-top:1px solid var(--line-2);display:grid;gap:4px}
+.items li:first-child{border-top:0;padding-top:0}
+.items li:last-child{padding-bottom:0}
+.it-h{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-2)}
+.it-h b{font-size:var(--fs-15);font-weight:700}
+.it-p{font-size:var(--fs-14);color:var(--ink)}
+.it-f{font-size:var(--fs-13);color:var(--mut);font-variant-numeric:tabular-nums}
+.cov{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-5)}
+.cov h4{font-size:var(--fs-14);font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:var(--sp-2)}
+.cov h4 .ic{width:16px;height:16px}
+.cov .yes h4{color:var(--ok)}
+.cov .no h4{color:var(--ink-2)}
+.cov li{font-size:var(--fs-14);color:var(--ink-2);padding-left:12px;position:relative;margin-top:4px}
+.cov li::before{content:"";position:absolute;left:0;top:.7em;width:4px;height:4px;border-radius:50%;background:var(--mut-2)}
+.cov-note{margin-top:var(--sp-4);padding-top:var(--sp-4);border-top:1px solid var(--line-2);font-size:var(--fs-13);color:var(--ink-2)}
+@media (max-width:640px){.cov{grid-template-columns:1fr;gap:var(--sp-4)}}
+.dealer-row{display:flex;gap:var(--sp-3);align-items:center}
+.dealer-ic{width:44px;height:44px;border-radius:50%;background:var(--soft);display:grid;place-items:center;color:var(--ink-2);flex:none}
+.dealer-row div{flex:1;min-width:0}
+.dealer-row b{display:block;font-size:var(--fs-15);font-weight:700}
+.dealer-row small{display:block;font-size:var(--fs-13);color:var(--mut)}
+.dealer-call{width:100%;margin-top:var(--sp-4)}
+.fine{font-size:var(--fs-12);color:var(--mut);text-align:center;padding:var(--sp-2) 0 0}
+.cert-actions{display:flex;gap:var(--sp-2);margin-top:var(--sp-2)}
+.cert-actions .btn{--h:var(--h-cta);border-radius:var(--r-md);font-size:var(--fs-15)}
+.cert-actions .btn-primary{flex:1;font-size:var(--fs-17)}
+@media (max-width:1023px){
+  .cert-actions{position:fixed;left:0;right:0;bottom:0;z-index:20;margin:0;background:var(--card);border-top:1px solid var(--line-2);padding:var(--sp-3) var(--sp-4) calc(var(--sp-3) + env(safe-area-inset-bottom))}
+  .site.has-cert{padding-bottom:84px}
+}
+
+/* 바텀시트 */
+.bs-back{position:fixed;inset:0;background:rgba(25,31,40,.48);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.bs{background:var(--card);width:100%;max-width:520px;border-radius:var(--r-xl) var(--r-xl) 0 0;padding:var(--sp-3) var(--sp-5) calc(var(--sp-5) + env(safe-area-inset-bottom));max-height:90vh;overflow:auto;box-shadow:var(--sh-pop)}
+.bs-grip{width:36px;height:4px;border-radius:var(--r-pill);background:var(--line);margin:0 auto var(--sp-4)}
+.bs h2{font-size:var(--fs-20);font-weight:700;letter-spacing:-.02em}
+.bs .help{margin-top:4px}
+.bs img{display:block;width:100%;max-height:56vh;object-fit:contain;border:1px solid var(--line-2);border-radius:var(--r-md);margin:var(--sp-4) 0;background:var(--soft)}
+.bs-actions{display:flex;gap:var(--sp-2)}
+.bs-actions .btn{--h:var(--h-cta);border-radius:var(--r-md);flex:1;font-size:var(--fs-15)}
+@media (min-width:641px){.bs-back{align-items:center}.bs{border-radius:var(--r-xl);padding-bottom:var(--sp-6)}}
+/* 사이트 메뉴(휴대폰) */
+.drawer{position:fixed;inset:0 auto 0 0;width:min(320px,86vw);background:var(--card);z-index:61;padding:var(--sp-4);box-shadow:var(--sh-pop);display:flex;flex-direction:column;gap:var(--sp-2)}
+.drawer nav a{display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 var(--sp-3);border-radius:var(--r-md);text-decoration:none;font-size:var(--fs-15);color:var(--ink-2)}
+.drawer nav a[aria-current="page"]{background:var(--soft);color:var(--ink);font-weight:700}
+
+/* ===== 대리점·본사 공통 앱 머리 ===== */
+.app-head{background:var(--card);border-bottom:1px solid var(--line-2)}
+.app-head-in{display:flex;align-items:center;gap:var(--sp-3);min-height:64px}
+@media (max-width:640px){.app-head-in{min-height:56px}.who .code,.who .lg{display:none}.who .btn{padding:0 8px}}
+.app-head .s-logo span{color:var(--mut);font-weight:500;margin-left:2px}
+.who{display:flex;align-items:center;gap:var(--sp-2);margin-left:auto}
+.who .tag{height:32px;padding:0 12px;border-radius:var(--r-pill);font-size:var(--fs-13);gap:8px}
+.who .tag i{width:6px;height:6px;border-radius:50%;background:var(--ok-dot)}
+.pg-head{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--sp-4);flex-wrap:wrap;margin:var(--sp-8) 0 var(--sp-6)}
+.pg-head h1{font-size:var(--fs-32);font-weight:700;letter-spacing:-.03em;line-height:var(--lh-tight)}
+.pg-head h1 span{color:var(--mut);font-weight:500}
+.pg-head p{color:var(--ink-2);margin-top:var(--sp-2);max-width:640px}
+@media (max-width:640px){.pg-head{margin:var(--sp-6) 0 var(--sp-4)}.pg-head h1{font-size:var(--fs-24)}.pg-head p{font-size:var(--fs-14)}}
+.grid{display:grid;gap:var(--sp-4);grid-template-columns:repeat(12,minmax(0,1fr));padding-bottom:var(--sp-16)}
+.s-12{grid-column:span 12}.s-8{grid-column:span 8}.s-7{grid-column:span 7}.s-5{grid-column:span 5}.s-4{grid-column:span 4}.s-3{grid-column:span 3}
+.stack{display:grid;gap:var(--sp-4);align-content:start;min-width:0}
+@media (max-width:1023px){.s-8,.s-7,.s-5,.s-4{grid-column:span 12}.s-3{grid-column:span 6}}
+@media (max-width:640px){.grid{gap:var(--sp-3)}.stack{gap:var(--sp-3)}}
+
+/* 대리점 발급 폼 */
+.fsec{display:grid;gap:var(--sp-5);padding:var(--sp-6) 0;border-top:1px solid var(--line-2)}
+.fsec:first-of-type{border-top:0;padding-top:0}
+.fsec-h{display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-2)}
+.fsec-h h2{font-size:var(--fs-17);font-weight:700;letter-spacing:-.02em}
+.fsec-h small{font-size:var(--fs-13);color:var(--mut);text-align:right}
+@media (max-width:640px){.fsec-h{flex-direction:column;align-items:flex-start;gap:4px}.fsec-h small{text-align:left}}
+.w-half{max-width:calc(50% - 8px)}
+@media (max-width:640px){.w-half{max-width:none}}
+.tsub{display:grid;gap:var(--sp-4);padding-top:var(--sp-5);border-top:1px dashed var(--line)}
+.tsub-h{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-2)}
+.tsub-h b{font-size:var(--fs-15);font-weight:700}
+.tsub .field{gap:var(--sp-2)}
+.tsub .sublabel{font-size:var(--fs-13);color:var(--ink-2);font-weight:600}
+.f-foot{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-4);padding-top:var(--sp-6);border-top:1px solid var(--line-2);flex-wrap:wrap}
+.f-foot p{font-size:var(--fs-13);color:var(--mut);max-width:260px}
+.f-foot .btns{display:flex;gap:var(--sp-2);margin-left:auto}
+@media (max-width:640px){.f-foot .btns{width:100%}.f-foot .btns .btn{flex:1}.f-foot .btns .btn-primary{flex:2}}
+/* 발급 결과 */
+.ir-empty{text-align:center;padding:var(--sp-8) var(--sp-2)}
+.ir-empty .e-ic{width:48px;height:48px;border-radius:50%;background:var(--soft);display:grid;place-items:center;margin:0 auto var(--sp-3);color:var(--mut)}
+.ir-empty h3{font-size:var(--fs-15);font-weight:600}
+.ir-empty p{font-size:var(--fs-13);color:var(--mut);margin-top:4px}
+.ir-h{display:flex;gap:var(--sp-3);align-items:center;margin-bottom:var(--sp-5)}
+.ir-h .ok-ic{width:40px;height:40px;border-radius:50%;background:var(--ok-bg);color:var(--ok);display:grid;place-items:center;flex:none}
+.ir-h h3{font-size:var(--fs-17);font-weight:700}
+.ir-h p{font-size:var(--fs-13);color:var(--mut)}
+.ir-no{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);padding:var(--sp-4) 0;border-top:1px solid var(--line-2)}
+.ir-no small{display:block;font-size:var(--fs-13);color:var(--mut)}
+.ir-no b{font-size:var(--fs-24);font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.ir-msg{border-top:1px solid var(--line-2);padding-top:var(--sp-4)}
+.ir-msg small{display:block;font-size:var(--fs-13);color:var(--mut);margin-bottom:var(--sp-2)}
+.ir-msg .kmsg{color:var(--ink)}
+.ir-btns{display:flex;gap:var(--sp-2);margin-top:var(--sp-4);flex-wrap:wrap}
+.ir-btns .btn{flex:1}
+.ir-f{margin-top:var(--sp-4);font-size:var(--fs-13);color:var(--mut);display:flex;justify-content:space-between;gap:var(--sp-2);flex-wrap:wrap;align-items:center}
+.ir-f .link{font-size:var(--fs-13)}
+.rlist li{border-top:1px solid var(--line-2)}
+.rlist li:first-child{border-top:0}
+.rrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px var(--sp-3);width:100%;text-align:left;background:none;border:0;padding:var(--sp-3) 0;align-items:center}
+.rrow b{font-size:var(--fs-14);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rrow small{font-size:var(--fs-12);color:var(--mut);font-variant-numeric:tabular-nums;grid-column:1}
+.rrow .chip{grid-row:1/3;grid-column:2}
+.rrow:hover b{color:var(--brand-text)}
+.new-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brand);margin-left:6px;vertical-align:middle}
+
+/* ===== 본사 ===== */
+.seg{display:inline-flex;background:var(--track);border-radius:var(--r-pill);padding:4px;gap:2px;max-width:100%}
+.seg button{border:0;background:none;border-radius:var(--r-pill);padding:0 16px;height:32px;font-size:var(--fs-13);font-weight:500;color:var(--ink-2);white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.seg button .ic{width:16px;height:16px}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);font-weight:600;box-shadow:var(--sh-pill)}
+.kpi{display:flex;flex-direction:column;gap:var(--sp-3)}
+.kpi-l{font-size:var(--fs-14);color:var(--ink-2);font-weight:500}
+.kpi-v{font-size:var(--fs-32);font-weight:700;letter-spacing:-.02em;line-height:1.15;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpi-v small{font-size:var(--fs-15);font-weight:500;color:var(--mut);margin-left:4px;letter-spacing:0}
+.kpi-f{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-13);color:var(--mut);flex-wrap:wrap}
+.kpi.hero-k{background:var(--brand);border-color:var(--brand);color:#fff}
+.kpi.hero-k .kpi-l,.kpi.hero-k .kpi-f,.kpi.hero-k small{color:#fff}
+.delta{display:inline-flex;align-items:center;gap:2px;height:22px;padding:0 8px;border-radius:var(--r-pill);font-size:var(--fs-12);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1;background:rgba(255,255,255,.2);color:#fff}
+@media (max-width:640px){.kpi-v{font-size:var(--fs-24)}.kpi-v small{font-size:var(--fs-13)}.kpi-l{font-size:var(--fs-13)}.kpi{gap:var(--sp-2)}}
+.tcard{padding:0;overflow:hidden}
+.tbar{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-5) var(--sp-6) var(--sp-4);flex-wrap:wrap}
+.tbar h2{font-size:var(--fs-17);font-weight:600;letter-spacing:-.02em;margin-right:4px}
+.tbar .cnt{font-size:var(--fs-14);color:var(--mut);font-variant-numeric:tabular-nums;margin-right:auto}
+.search{display:flex;align-items:center;gap:8px;height:var(--h-md);padding:0 14px;border:1px solid var(--line);border-radius:var(--r-pill);background:var(--card);width:260px;color:var(--mut)}
+.search input{border:0;outline:0;font-size:var(--fs-14);width:100%;min-width:0;background:none;color:var(--ink)}
+.search input::placeholder{color:var(--mut-2)}
+.search:focus-within{border-color:var(--brand);box-shadow:var(--ring)}
+.sel-sm{height:var(--h-md);border-radius:var(--r-pill);font-size:var(--fs-14);width:auto;padding-left:16px}
+.tfilters{padding:0 var(--sp-6) var(--sp-4);display:flex;gap:var(--sp-2);overflow-x:auto;scrollbar-width:none}
+.tfilters::-webkit-scrollbar{display:none}
+.tscroll{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:var(--fs-14)}
+.tbl th{background:var(--soft);color:var(--mut);font-size:var(--fs-13);font-weight:500;text-align:left;padding:10px 16px;border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);white-space:nowrap}
+.tbl td{padding:12px 16px;border-bottom:1px solid var(--line-2);white-space:nowrap;vertical-align:middle;height:56px}
+.tbl th:first-child,.tbl td:first-child{padding-left:var(--sp-6)}
+.tbl th:last-child,.tbl td:last-child{padding-right:var(--sp-6)}
+.tbl .r{text-align:right}
+.tbl tbody tr:hover{background:#FAFBFC}
+.tbl .id button{background:none;border:0;padding:0;color:var(--brand-text);font-weight:600;font-variant-numeric:tabular-nums;font-size:var(--fs-14)}
+.tbl .id button:hover{text-decoration:underline}
+.tbl .dt{color:var(--ink-2);font-variant-numeric:tabular-nums}
+.tbl .dt .d1{display:block}
+.tbl .dt small{display:block;font-size:var(--fs-12);color:var(--mut)}
+.tbl .cu b{font-weight:600;display:block}
+.tbl .cu small{display:block;font-size:var(--fs-12);color:var(--mut)}
+.tbl .pr{max-width:170px;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
+.tbl .dl{color:var(--ink-2)}
+.tbl tr.empty-row td{height:auto;white-space:normal}
+.empty{text-align:center;padding:var(--sp-10) var(--sp-6)}
+.empty .e-ic{width:48px;height:48px;border-radius:50%;background:var(--soft);display:grid;place-items:center;margin:0 auto var(--sp-3);color:var(--mut)}
+.empty h3{font-size:var(--fs-15);font-weight:600}
+.empty p{font-size:var(--fs-13);color:var(--mut);margin:4px 0 var(--sp-4)}
+.tfoot{display:flex;justify-content:space-between;align-items:center;padding:12px var(--sp-6);font-size:var(--fs-13);color:var(--mut);gap:var(--sp-3);flex-wrap:wrap}
+.pager{display:flex;gap:4px}
+.pager button{min-width:32px;height:32px;padding:0 6px;border-radius:var(--r-sm);border:0;background:none;font-size:var(--fs-13);font-weight:500;color:var(--ink-2);display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.pager button:hover{background:var(--track)}
+.pager button[aria-current="page"]{background:var(--ink);color:#fff;font-weight:700}
+.pager button:disabled{color:var(--mut-2);background:none;cursor:not-allowed}
+@media (max-width:760px){
+  .tbar{padding:var(--sp-4)}
+  .search{order:5;width:100%}
+  .sel-sm{order:6;width:100%}
+  .tfilters{padding:0 var(--sp-4) var(--sp-3)}
+  .tbl thead{display:none}
+  .tbl,.tbl tbody{display:block}
+  .tbl tr{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"cu st" "pr pr" "id dt";gap:4px var(--sp-3);padding:var(--sp-4);border-top:1px solid var(--line-2)}
+  .tbl td{display:block;padding:0!important;border:0;height:auto}
+  .tbl .cu{grid-area:cu;min-width:0}
+  .tbl .cu b{font-size:var(--fs-15);overflow:hidden;text-overflow:ellipsis}
+  .tbl .st{grid-area:st;justify-self:end;align-self:start}
+  .tbl .pr{grid-area:pr;max-width:none;font-size:var(--fs-13);white-space:normal}
+  .tbl .id{grid-area:id}
+  .tbl .id button{font-size:var(--fs-13)}
+  .tbl .dt{grid-area:dt;align-self:center;text-align:right}
+  .tbl .dt .d1,.tbl .dt .tl{display:none}
+  .tbl .dt small::before{content:"만료 "}
+  .tbl .dl{display:none}
+  .tbl tr.empty-row{display:block;padding:0}
+  .tfoot{padding:12px var(--sp-4);border-top:1px solid var(--line-2)}
+}
+.hbars{display:grid;gap:4px}
+.hb{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px var(--sp-3);align-items:center;width:100%;background:none;border:0;padding:8px;margin:0 -8px;border-radius:var(--r-sm);text-align:left;width:calc(100% + 16px)}
+.hb:hover{background:var(--soft)}
+.hb .nm{font-size:var(--fs-14);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hb .v{font-size:var(--fs-13);color:var(--ink-2);font-variant-numeric:tabular-nums;font-weight:600}
+.hb .tr{grid-column:1/-1;height:8px;border-radius:var(--r-pill);background:var(--track);overflow:hidden}
+.hb .fl{display:block;height:100%;border-radius:inherit;background:var(--brand-tint-2)}
+.hb[aria-pressed="true"] .fl{background:var(--brand)}
+.hb[aria-pressed="true"] .nm{font-weight:700}
+.side-note{font-size:var(--fs-13);color:var(--mut);margin-top:var(--sp-4);padding-top:var(--sp-4);border-top:1px solid var(--line-2)}
+/* 시트 모습 */
+.sheet{padding:0;overflow:hidden}
+.sh-top{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-4) var(--sp-5);border-bottom:1px solid var(--line-2);flex-wrap:wrap}
+.sh-ic{width:36px;height:36px;border-radius:var(--r-sm);background:var(--ok-bg);color:var(--ok);display:grid;place-items:center;flex:none}
+.sh-top b{display:block;font-size:var(--fs-15);font-weight:700}
+.sh-top small{display:block;font-size:var(--fs-12);color:var(--mut)}
+.sh-top .chip{margin-left:auto}
+.sh-fx{display:flex;align-items:center;gap:var(--sp-3);padding:8px var(--sp-5);border-bottom:1px solid var(--line-2);font-size:var(--fs-13);min-height:40px}
+.sh-ref{min-width:56px;color:var(--mut);font-variant-numeric:tabular-nums;font-weight:600}
+.sh-fxv{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.sh-wrap{overflow:auto;max-height:520px}
+.sh-grid{border-collapse:separate;border-spacing:0;font-size:var(--fs-13);font-variant-numeric:tabular-nums}
+.sh-grid th,.sh-grid td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:0 8px;height:32px;white-space:nowrap;text-align:left}
+.sh-grid thead th{position:sticky;top:0;background:var(--soft);color:var(--mut);font-weight:500;text-align:center;z-index:2;height:24px;font-size:var(--fs-12)}
+.sh-grid .rn{position:sticky;left:0;background:var(--soft);color:var(--mut);text-align:center;min-width:44px;font-size:var(--fs-12);z-index:1}
+.sh-grid thead .rn{z-index:3}
+.sh-grid tr.hdr td{font-weight:700;background:#F9FAFB;color:var(--ink);position:sticky;top:24px;z-index:2}
+.sh-grid tr.hdr td.rn{z-index:3}
+.sh-grid td{max-width:220px;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.sh-grid td.ed{cursor:cell}
+.sh-grid td.sel{outline:2px solid var(--brand);outline-offset:-2px;background:var(--brand-tint)}
+.sh-grid td.chg{background:var(--warn-bg)}
+.sh-grid td input{width:100%;border:0;outline:0;background:none;font:inherit;padding:0}
+.sh-grid td.f-ok{color:var(--ok);font-weight:600}
+.sh-grid td.f-warn{color:var(--warn);font-weight:600}
+.sh-grid td.f-end{color:var(--mut)}
+.sh-grid td.new{background:var(--brand-tint)}
+.sh-tabs{display:flex;gap:4px;padding:4px var(--sp-3);border-top:1px solid var(--line-2);background:var(--soft);overflow-x:auto;scrollbar-width:none}
+.sh-tabs::-webkit-scrollbar{display:none}
+.sh-tabs button{border:0;background:none;padding:0 16px;height:36px;border-radius:var(--r-sm);font-size:var(--fs-13);font-weight:500;color:var(--ink-2);white-space:nowrap}
+.sh-tabs button:hover{background:var(--track)}
+.sh-tabs button[aria-selected="true"]{background:var(--card);color:var(--ink);font-weight:700;box-shadow:var(--sh-pill)}
+.sh-hint{display:flex;gap:var(--sp-2);align-items:flex-start;font-size:var(--fs-13);color:var(--ink-2);padding:var(--sp-3) var(--sp-5);border-top:1px solid var(--line-2)}
+.sh-hint .ic{color:var(--info);width:16px;height:16px;margin-top:3px}
+.todo li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--sp-3);padding:var(--sp-3) 0;border-top:1px solid var(--line-2)}
+.todo li:first-child{border-top:0;padding-top:0}
+.todo .t-ic{width:32px;height:32px;border-radius:50%;background:var(--soft);display:grid;place-items:center;color:var(--ink-2)}
+.todo .t-ic .ic{width:16px;height:16px}
+.todo b{display:block;font-size:var(--fs-14);font-weight:600}
+.todo small{display:block;font-size:var(--fs-13);color:var(--mut)}
+
+/* 인쇄(PDF로 저장) */
+@media print{
+  @page{margin:14mm}
+  body{background:#fff}
+  .demobar,.s-head,.s-bh,.c-aside,.s-foot,.cert-actions,.cert-top,.view:not(#v-customer),.toast-live,.bs-back,.drawer,#lookupPane,.hero .circle,.dealer-call{display:none!important}
+  .site{background:#fff;min-height:0}
+  .c-grid{display:block;padding:0}
+  .card,.hero{break-inside:avoid}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .print-only{display:block!important}
+}
+.print-only{display:none}
+.print-only h1{font-size:var(--fs-20);margin-bottom:var(--sp-4)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-chev-d" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.6"/><path d="m21 15-5-5L5 21"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M21 16.5v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 3.1 3.7 2 2 0 0 1 5.1 1.5h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L9.1 9.4a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-excl" viewBox="0 0 24 24"><path d="M12 6.5v7.5M12 17.5v.01"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.5v.01"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M4 10v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9M3 10l1.6-5h14.8L21 10M3 10h18M9.5 20v-5h5v5"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 20h14"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/></symbol>
+  <symbol id="i-film" viewBox="0 0 24 24"><path d="M4 17.5 8.4 7h11.1v10.5z" fill="#fff"/><path d="M5.9 13 4 17.5h15.5V13z" fill="#8B95A1"/></symbol>
+</svg>
+
+<header class="demobar">
+  <div class="wrap db-in">
+    <span class="db-tag">데모</span>
+    <p class="db-title"><b>새결 오토필름 전자보증서</b><span id="dbNote">고객이 카카오톡 링크로 여는 카페24 '보증서 확인' 화면이에요. 회사·이름·번호는 모두 예시예요.</span></p>
+    <div class="db-seg" role="tablist" aria-label="데모 화면">
+      <button type="button" role="tab" aria-selected="true" data-view="customer">고객 조회</button>
+      <button type="button" role="tab" aria-selected="false" data-view="dealer">대리점 발급</button>
+      <button type="button" role="tab" aria-selected="false" data-view="hq">본사 관리</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ============ 고객 조회 (카페24 '보증서 확인' 메뉴) ============ -->
+<section class="view" id="v-customer" aria-label="고객 조회 화면">
+  <div class="site" id="site">
+    <header class="s-head">
+      <div class="wrap s-head-in">
+        <button class="ib ib-plain s-menu" type="button" id="openDrawer" aria-label="사이트 메뉴 열기"><svg class="ic"><use href="#i-menu"/></svg></button>
+        <a class="s-logo" href="#customer"><span class="s-mark"><svg viewBox="0 0 24 24"><use href="#i-film"/></svg></span>새결 오토필름</a>
+        <nav class="s-nav" aria-label="사이트 메뉴">
+          <a href="#customer" data-fake>썬팅</a><a href="#customer" data-fake>PPF</a><a href="#customer" data-fake>유리막 코팅</a><a href="#customer" data-fake>시공점 찾기</a><a href="#customer" aria-current="page">보증서 확인</a><a href="#customer" data-fake>공지사항</a>
+        </nav>
+        <div class="s-tools">
+          <a class="t-txt" href="#customer" data-fake>상담 신청</a>
+          <button class="ib ib-plain" type="button" data-fake aria-label="사이트 검색"><svg class="ic"><use href="#i-search"/></svg></button>
+        </div>
+      </div>
+    </header>
+
+    <div class="wrap s-bh">
+      <p class="crumb">홈 <svg class="ic"><use href="#i-chev-r"/></svg> 고객센터 <svg class="ic"><use href="#i-chev-r"/></svg> <b>보증서 확인</b></p>
+      <h1 class="greet" id="lkGreet"><span>보증서 확인</span><b>시공 보증서를 번호로 확인해요</b></h1>
+      <div class="cert-top" id="certTop" hidden>
+        <button class="link" type="button" id="backToLookup"><svg class="ic ic-s"><use href="#i-chev-l"/></svg>다른 번호 조회</button>
+        <span class="num" id="certTopNo"></span>
+      </div>
+    </div>
+
+    <div class="wrap c-grid">
+      <div class="c-main">
+        <!-- 조회 -->
+        <div id="lookupPane" class="c-main">
+          <form class="card lk-card" id="lookupForm" novalidate>
+            <div class="field">
+              <label class="label" for="inNo">보증번호</label>
+              <input class="input input-code" id="inNo" name="no" placeholder="2510-XXXX-XXXX" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="noHelp noErr">
+              <p class="help" id="noHelp">카카오톡으로 받은 메시지에 있는 12자리예요</p>
+              <p class="err" id="noErr" hidden><svg class="ic"><use href="#i-alert"/></svg><span></span></p>
+            </div>
+            <div class="field" id="pinField">
+              <label class="label" for="inPin">휴대폰 번호 뒷자리</label>
+              <input class="input input-pin" id="inPin" name="pin" placeholder="4자리" maxlength="4" inputmode="numeric" autocomplete="off" aria-describedby="pinHelp pinErr">
+              <p class="help" id="pinHelp">시공할 때 알려 주신 번호의 마지막 4자리예요</p>
+              <p class="err" id="pinErr" hidden><svg class="ic"><use href="#i-alert"/></svg><span></span></p>
+            </div>
+            <div class="lk-msg" id="lkMsg" role="alert" hidden></div>
+            <button class="btn btn-primary btn-cta" type="submit" id="lkBtn">보증서 확인하기</button>
+          </form>
+
+          <div class="card" id="tryCard">
+            <div class="try-h"><h2>체험용 번호</h2><small>데모에서만 보여요</small></div>
+            <div class="try-list" id="tryList"></div>
+            <div class="try-x">
+              <button class="link link-brand" type="button" data-try="typo">한 글자 틀린 번호 넣어 보기</button>
+              <button class="link link-brand" type="button" data-try="none">없는 번호 넣어 보기</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 보증서 -->
+        <div id="certPane" class="c-main" hidden>
+          <div class="print-only"><h1>새결 오토필름 시공 보증서</h1></div>
+          <section class="hero" id="certHero" aria-live="polite"></section>
+          <section class="card" aria-labelledby="hInfo">
+            <div class="ch"><h2 id="hInfo">시공 정보</h2></div>
+            <dl class="kv" id="certInfo"></dl>
+          </section>
+          <section class="card" aria-labelledby="hItems">
+            <div class="ch"><h2 id="hItems">시공 제품과 보증 기간</h2></div>
+            <ul class="items" id="certItems"></ul>
+          </section>
+          <section class="card" aria-labelledby="hCov">
+            <div class="ch"><h2 id="hCov">보증해 드리는 것</h2></div>
+            <div class="cov">
+              <div class="yes"><h4><svg class="ic"><use href="#i-check"/></svg>보증해요</h4>
+                <ul><li>필름 변색, 기포, 들뜸, 벗겨짐 같은 제품 결함</li><li>PPF 황변·갈라짐</li><li>시공 후 3개월 안에 생긴 시공 불량</li></ul></div>
+              <div class="no"><h4><svg class="ic"><use href="#i-minus"/></svg>보증하지 않아요</h4>
+                <ul><li>사고, 돌 튐 같은 외부 충격</li><li>고압 세차, 연마제로 생긴 손상</li><li>다른 곳에서 떼거나 고친 경우</li></ul></div>
+            </div>
+            <p class="cov-note">차를 팔거나 주인이 바뀌면 남은 기간과 관계없이 보증이 끝나요. <a class="link link-brand" href="#customer" data-fake style="font-size:13px;padding:0">보증 약관 전체 보기</a></p>
+          </section>
+          <section class="card" aria-labelledby="hDealer">
+            <div class="ch"><h2 id="hDealer">A/S는 시공한 대리점에서 받아요</h2></div>
+            <div class="dealer-row" id="certDealer"></div>
+            <a class="btn btn-secondary btn-lg dealer-call" id="certCall" href="#" data-fake><svg class="ic"><use href="#i-phone"/></svg>대리점에 전화하기</a>
+          </section>
+          <p class="fine num" id="certFine"></p>
+          <div class="cert-actions" id="certActions">
+            <button class="btn btn-secondary" type="button" id="btnPdf"><svg class="ic"><use href="#i-file"/></svg>PDF로 저장</button>
+            <button class="btn btn-primary" type="button" id="btnImg"><svg class="ic"><use href="#i-image"/></svg>이미지로 저장</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="c-aside" id="cAside">
+        <section class="card" id="whereCard" aria-labelledby="hWhere">
+          <div class="ch"><div><h2 id="hWhere">번호는 어디에 있나요?</h2><p>시공 날 대리점에서 카카오톡으로 보내 드려요</p></div></div>
+          <div class="kmsg" id="whereMsg"></div>
+        </section>
+        <section class="card" id="faqCard" aria-labelledby="hFaq">
+          <div class="ch" style="margin-bottom:4px"><h2 id="hFaq">자주 묻는 질문</h2></div>
+          <div class="faq">
+            <details><summary>번호를 잃어버렸어요<svg class="ic ic-s"><use href="#i-chev-d"/></svg></summary><p>시공한 대리점에 차량번호를 알려 주시면 같은 번호를 다시 보내 드려요.</p></details>
+            <details><summary>차를 팔면 보증은 어떻게 되나요?<svg class="ic ic-s"><use href="#i-chev-d"/></svg></summary><p>보증은 시공 당시 차 주인에게만 적용돼요. 주인이 바뀌면 보증이 끝나요.</p></details>
+            <details><summary>조회가 안 돼요<svg class="ic ic-s"><use href="#i-chev-d"/></svg></summary><p>시공 당일 저녁까지 발급되지 않았을 수 있어요. 다음 날에도 안 되면 시공한 대리점에 알려 주세요.</p></details>
+            <details><summary>카카오톡에서 저장이 안 돼요<svg class="ic ic-s"><use href="#i-chev-d"/></svg></summary><p>카카오톡 안에서는 파일 저장이 막힐 때가 있어요. 오른쪽 위 메뉴에서 '다른 브라우저로 열기'를 누른 뒤 저장해 주세요.</p></details>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <footer class="s-foot">
+      <div class="wrap">
+        <p><b>새결 오토필름</b> · 본사 서울 강남구 · 고객센터 평일 10:00~18:00</p>
+        <p>사업자등록번호 000-00-00000 · 통신판매업 신고 0000-서울강남-0000 · 개인정보처리방침</p>
+        <p class="c24">이 화면은 카페24 쇼핑몰의 '보증서 확인' 메뉴에 붙인 페이지예요(스마트디자인 화면 추가).</p>
+      </div>
+    </footer>
+  </div>
+</section>
+
+<!-- ============ 대리점 발급 ============ -->
+<section class="view" id="v-dealer" aria-label="대리점 발급 화면" hidden>
+  <header class="app-head">
+    <div class="wrap app-head-in">
+      <span class="s-logo"><span class="s-mark"><svg viewBox="0 0 24 24"><use href="#i-film"/></svg></span>새결 <span>대리점</span></span>
+      <div class="who">
+        <span class="tag"><i></i>분당판교점<span class="code">· BD06</span></span>
+        <button class="btn btn-ghost btn-sm" type="button" data-fake aria-label="나가기"><svg class="ic"><use href="#i-logout"/></svg><span class="lg">나가기</span></button>
+      </div>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="pg-head">
+      <div>
+        <h1>보증서 발급</h1>
+        <p>시공을 마치고 아래 칸을 채우면 보증번호와 고객에게 보낼 카카오톡 문구가 바로 만들어져요.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <form class="card s-7" id="dForm" novalidate>
+        <div class="fsec">
+          <div class="fsec-h"><h2>고객</h2><small>고객 화면에는 휴대폰 번호를 가려서 보여 줘요</small></div>
+          <div class="row2">
+            <div class="field"><label class="label" for="fName">고객 이름<span class="req">*</span></label>
+              <input class="input" id="fName" autocomplete="off" placeholder="김민수">
+              <p class="err" hidden><svg class="ic"><use href="#i-alert"/></svg><span></span></p></div>
+            <div class="field"><label class="label" for="fPhone">휴대폰<span class="req">*</span></label>
+              <input class="input num" id="fPhone" inputmode="numeric" autocomplete="off" placeholder="010-0000-0000" maxlength="13">
+              <p class="err" hidden><svg class="ic"><use href="#i-alert"/></svg><span></span></p></div>
+          </div>
+        </div>
+        <div class="fsec">
+          <div class="fsec-h"><h2>차량</h2></div>
+          <div class="row2">
+            <div class="field"><label class="label" for="fCar">차종<span class="req">*</span></label>
+              <input class="input" id="fCar" list="carList" autocomplete="off" placeholder="예: 기아 쏘렌토">
+              <datalist id="carList"></datalist>
+              <p class="err" hidden><svg class="ic"><use href="#i-alert"/></svg><span></span></p></div>
+            <div class="field"><label class="label" for="fPlate">차량번호<span class="req">*</span></label>
+              <input class="input" id="fPlate" autocomplete="off" placeholder="12가 3456">
+              <p class="err" hidden><svg class="ic"><use href="#i-alert"/></svg><span></span></p></div>
+          </div>
+          <div class="row2">
+            <div class="field"><label class="label" for="fDate">시공일<span class="req">*</span></label>
+              <input class="input num" id="fDate" type="date">
+              <p class="err" hidden><svg class="ic"><use href="#i-alert"/></svg><span></span></p></div>
+            <div class="field"><label class="label" for="fAmt">시공 금액<span class="opt">(선택)</span></label>
+              <div class="affix"><input class="input" id="fAmt" inputmode="numeric" autocomplete="off" placeholder="0"><span class="sfx">원</span></div>
+              <p class="help">본사 집계에만 쓰고 고객 화면에는 안 보여요</p></div>
+          </div>
+        </div>
+        <div class="fsec">
+          <div class="fsec-h"><h2>시공 내용</h2></div>
+          <fieldset class="field" style="border:0;margin:0;padding:0">
+            <legend class="label" style="padding:0;margin-bottom:8px">시공한 항목<span class="req">*</span></legend>
+            <div class="rchips" id="typeChips"></div>
+            <p class="err" id="typeErr" hidden><svg class="ic"><use href="#i-alert"/></svg><span></span></p>
+          </fieldset>
+          <div id="typeSubs" class="stack" style="gap:20px"></div>
+          <div class="field"><label class="label" for="fMemo">메모<span class="opt">(선택)</span></label>
+            <input class="input" id="fMemo" autocomplete="off" placeholder="본사만 보는 메모예요. 예: 앞유리 기존 필름 제거">
+          </div>
+        </div>
+        <div class="f-foot">
+          <p>잘못 발급했다면 본사에 알려 주세요. 본사가 시트에서 바로 고쳐요.</p>
+          <div class="btns">
+            <button class="btn btn-secondary btn-lg" type="reset" id="dReset">처음부터 다시 쓰기</button>
+            <button class="btn btn-primary btn-lg" type="submit" id="dSubmit">보증서 발급하기</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="s-5 stack">
+        <section class="card" id="issueCard" aria-live="polite"></section>
+        <section class="card" aria-labelledby="hRecent">
+          <div class="ch"><h2 id="hRecent">우리 대리점 최근 발급</h2></div>
+          <ul class="rlist" id="recentList"></ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 본사 관리 ============ -->
+<section class="view" id="v-hq" aria-label="본사 관리 화면" hidden>
+  <header class="app-head">
+    <div class="wrap app-head-in">
+      <span class="s-logo"><span class="s-mark"><svg viewBox="0 0 24 24"><use href="#i-film"/></svg></span>새결 <span>본사 관리</span></span>
+      <div class="who">
+        <div class="seg" role="group" aria-label="보기 방식">
+          <button type="button" aria-pressed="true" data-hqmode="list"><svg class="ic"><use href="#i-list"/></svg>목록</button>
+          <button type="button" aria-pressed="false" data-hqmode="sheet"><svg class="ic"><use href="#i-grid"/></svg><span class="lg">구글 </span>시트<span class="lg"> 모습</span></button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="pg-head">
+      <div>
+        <h1 id="hqTitle">보증서 <span class="num" id="hqTotal"></span></h1>
+        <p id="hqDesc">전국 대리점에서 발급한 보증서예요. 대리점이 발급하는 순간 여기에 쌓여요.</p>
+      </div>
+      <button class="btn btn-secondary" type="button" id="btnCsv"><svg class="ic"><use href="#i-download"/></svg>엑셀로 내려받기</button>
+    </div>
+
+    <div id="hqList" class="grid">
+      <div class="card kpi hero-k s-3"><span class="kpi-l">이번 달 발급</span><span class="kpi-v" id="kMonth"></span><span class="kpi-f" id="kMonthF"></span></div>
+      <div class="card kpi s-3"><span class="kpi-l">보증 중</span><span class="kpi-v" id="kOk"></span><span class="kpi-f">전체 발급 중 보증이 남은 건</span></div>
+      <div class="card kpi s-3"><span class="kpi-l" id="kSoonL">90일 안에 만료</span><span class="kpi-v" id="kSoon"></span><span class="kpi-f">재시공 안내를 보낼 고객</span></div>
+      <div class="card kpi s-3"><span class="kpi-l">대리점</span><span class="kpi-v" id="kDealer"></span><span class="kpi-f" id="kDealerF"></span></div>
+
+      <section class="card tcard s-8" aria-labelledby="hTbl">
+        <div class="tbar">
+          <h2 id="hTbl">발급 목록</h2><span class="cnt" id="tCnt"></span>
+          <label class="search"><svg class="ic ic-s"><use href="#i-search"/></svg><span class="sr">검색</span><input id="tSearch" type="search" placeholder="번호, 이름, 차량번호 4자리"></label>
+          <label class="sr" for="tDealer">대리점</label>
+          <select class="input sel-sm" id="tDealer"></select>
+        </div>
+        <div class="tfilters" id="tFilters" role="group" aria-label="상태로 거르기"></div>
+        <div class="tscroll">
+          <table class="tbl">
+            <thead><tr><th>보증번호</th><th>고객 · 차량</th><th>시공 항목</th><th>대리점</th><th>시공일 · 만료일</th><th>상태</th></tr></thead>
+            <tbody id="tBody"></tbody>
+          </table>
+        </div>
+        <div class="tfoot"><span id="tRange"></span><div class="pager" id="tPager"></div></div>
+      </section>
+
+      <section class="card s-4" aria-labelledby="hBars" style="align-self:start">
+        <div class="ch"><div><h2 id="hBars">대리점별 발급</h2><p>올해 · 누르면 그 대리점만 봐요</p></div></div>
+        <div class="hbars" id="hBarsList"></div>
+        <p class="side-note" id="hBarsNote"></p>
+      </section>
+    </div>
+
+    <div id="hqSheet" class="grid" hidden>
+      <section class="card sheet s-8" aria-label="구글 시트 모습">
+        <div class="sh-top">
+          <span class="sh-ic"><svg class="ic"><use href="#i-grid"/></svg></span>
+          <div><b>새결 보증서 DB</b><small>회사 구글 드라이브 · 본사 계정만 열 수 있어요</small></div>
+          <span class="chip ok">자동 저장됨</span>
+        </div>
+        <div class="sh-fx"><span class="sh-ref" id="shRef">A1</span><span class="sh-fxv" id="shFx">셀을 누르면 내용이 여기에 보여요</span></div>
+        <div class="sh-wrap" id="shWrap"><table class="sh-grid" id="shGrid"></table></div>
+        <div class="sh-hint"><svg class="ic"><use href="#i-info"/></svg><span id="shHint"></span></div>
+        <div class="sh-tabs" role="tablist" aria-label="시트 탭" id="shTabs">
+          <button type="button" role="tab" aria-selected="true" data-tab="certs">보증서</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="dealers">대리점</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="products">보증 종류</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="settings">설정</button>
+        </div>
+      </section>
+      <section class="card s-4" aria-labelledby="hTodo" style="align-self:start">
+        <div class="ch"><div><h2 id="hTodo">본사가 시트에서 하는 일</h2><p>개발자 없이 이 다섯 가지면 돼요</p></div></div>
+        <ul class="todo">
+          <li><span class="t-ic"><svg class="ic"><use href="#i-store"/></svg></span><div><b>대리점 추가</b><small>'대리점' 탭 맨 아래에 이름·전화·PIN을 한 줄 쓰기</small></div></li>
+          <li><span class="t-ic"><svg class="ic"><use href="#i-shield"/></svg></span><div><b>보증 종류 추가</b><small>'보증 종류' 탭에 제품 이름과 기간을 한 줄 쓰기. 발급 화면 목록에 바로 생겨요</small></div></li>
+          <li><span class="t-ic"><svg class="ic"><use href="#i-edit"/></svg></span><div><b>잘못 쓴 내용 고치기</b><small>'보증서' 탭에서 그 칸만 고치기. 고객 조회에 바로 반영돼요</small></div></li>
+          <li><span class="t-ic"><svg class="ic"><use href="#i-pause"/></svg></span><div><b>대리점 사용 중지</b><small>'사용' 칸을 N으로 바꾸면 그 대리점 PIN이 바로 막혀요</small></div></li>
+          <li><span class="t-ic"><svg class="ic"><use href="#i-history"/></svg></span><div><b>백업</b><small>매달 1일 시트 사본이 자동으로 드라이브에 생겨요. 파일 &gt; 버전 기록으로 되돌리기도 돼요</small></div></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</section>
+</main>
+
+<div class="toast-live" id="toast" role="status" aria-live="polite"><div class="toast"><span class="ok-ic" id="toastIc"><svg class="ic"><use href="#i-check"/></svg></span><span id="toastTxt"></span></div></div>
+
+<div class="bs-back" id="imgSheet" hidden>
+  <div class="bs" role="dialog" aria-modal="true" aria-labelledby="bsTitle">
+    <div class="bs-grip"></div>
+    <h2 id="bsTitle">보증서 이미지</h2>
+    <p class="help">이미지를 길게 누르면 사진첩에 저장할 수 있어요. 카카오톡 안에서 안 되면 오른쪽 위 메뉴의 '다른 브라우저로 열기'를 눌러 주세요.</p>
+    <img id="bsImg" alt="보증서 이미지">
+    <div class="bs-actions">
+      <button class="btn btn-secondary" type="button" id="bsClose">닫기</button>
+      <a class="btn btn-primary" id="bsDown" download="보증서.png" href="#"><svg class="ic"><use href="#i-download"/></svg>파일로 내려받기</a>
+    </div>
+  </div>
+</div>
+
+<div class="bs-back" id="drawerBack" hidden style="align-items:stretch;justify-content:flex-start">
+  <div class="drawer" role="dialog" aria-modal="true" aria-label="사이트 메뉴">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span class="s-logo"><span class="s-mark"><svg viewBox="0 0 24 24"><use href="#i-film"/></svg></span>새결 오토필름</span>
+      <button class="ib ib-plain" type="button" id="closeDrawer" aria-label="메뉴 닫기"><svg class="ic"><use href="#i-x"/></svg></button>
+    </div>
+    <nav>
+      <a href="#customer" data-fake>썬팅<svg class="ic ic-s"><use href="#i-chev-r"/></svg></a>
+      <a href="#customer" data-fake>PPF<svg class="ic ic-s"><use href="#i-chev-r"/></svg></a>
+      <a href="#customer" data-fake>유리막 코팅<svg class="ic ic-s"><use href="#i-chev-r"/></svg></a>
+      <a href="#customer" data-fake>시공점 찾기<svg class="ic ic-s"><use href="#i-chev-r"/></svg></a>
+      <a href="#customer" aria-current="page" data-close>보증서 확인<svg class="ic ic-s"><use href="#i-chev-r"/></svg></a>
+      <a href="#customer" data-fake>공지사항<svg class="ic ic-s"><use href="#i-chev-r"/></svg></a>
+    </nav>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SITE = 'https://saegyeolfilm.co.kr/warranty.html';
+
+/* ---------- 날짜 ---------- */
+const day0 = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const TODAY = day0(new Date());
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const addYears = (d, n) => new Date(d.getFullYear() + n, d.getMonth(), d.getDate());
+const diffDays = (a, b) => Math.round((day0(b) - day0(a)) / 86400000);
+const p2 = n => String(n).padStart(2, '0');
+const fDot = d => `${d.getFullYear()}.${p2(d.getMonth() + 1)}.${p2(d.getDate())}`;
+const fKo = d => `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+const fIso = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+const parseIso = s => { const [y, m, dd] = s.split('-').map(Number); return new Date(y, m - 1, dd); };
+function remainText(from, to) {
+  let m = (to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth());
+  if (to.getDate() < from.getDate()) m -= 1;
+  if (m < 1) return `${Math.max(0, diffDays(from, to))}일`;
+  const y = Math.floor(m / 12), mm = m % 12;
+  return [y ? `${y}년` : '', mm ? `${mm}개월` : ''].filter(Boolean).join(' ');
+}
+
+/* ---------- 가림 ---------- */
+function maskName(n) { n = n.trim(); if (n.length <= 1) return n; if (n.length === 2) return n[0] + '*'; return n[0] + '*'.repeat(n.length - 2) + n[n.length - 1]; }
+function maskPlate(p) { const m = p.match(/^(\d{2,3}\s?[가-힣])\s?(\d{4})$/); return m ? `${m[1].replace(/\s/g, '')} **${m[2].slice(2)}` : p; }
+const maskPhone = ph => `010-****-${ph.slice(-4)}`;
+const fmtPhone = d => { d = d.replace(/\D/g, '').slice(0, 11); if (d.length < 4) return d; if (d.length < 8) return `${d.slice(0, 3)}-${d.slice(3)}`; return `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}`; };
+
+/* ---------- 보증번호: 헷갈리는 글자(0 O 1 I) 뺀 32자 + 확인 문자 ---------- */
+const ALPHA = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+const FULL = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function checkChar(s11) { let sum = 0; for (let i = 0; i < 11; i++) sum += (i * 7 + 3) * FULL.indexOf(s11[i]); return ALPHA[sum % 32]; }
+const yymm = d => String(d.getFullYear()).slice(2) + p2(d.getMonth() + 1);
+const makeCode = (d, r7) => { const s = yymm(d) + r7; return s + checkChar(s); };
+const fmtCode = c => [c.slice(0, 4), c.slice(4, 8), c.slice(8, 12)].filter(Boolean).join('-');
+function cleanCode(v) {
+  let s = v.toUpperCase().replace(/[^0-9A-Z]/g, '');
+  s = s.slice(0, 4).replace(/O/g, '0').replace(/[IL]/g, '1') + s.slice(4);
+  return s.slice(0, 12);
+}
+
+/* ---------- 고정 데이터 ---------- */
+let seed = 20261021;
+const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const pick = a => a[Math.floor(rnd() * a.length)];
+const rand7 = () => Array.from({length: 7}, () => ALPHA[Math.floor(rnd() * 32)]).join('');
+
+const DEALERS = [
+  ['GN01','강남본점','서울 강남구','02-0412-3300',14],['SP02','송파잠실점','서울 송파구','02-0418-2210',9],
+  ['MP03','마포상암점','서울 마포구','02-0375-1104',6],['GS04','강서마곡점','서울 강서구','02-0366-7120',5],
+  ['NW05','노원점','서울 노원구','02-0391-5521',4],['BD06','분당판교점','경기 성남시 분당구','031-0123-4567',10],
+  ['SW07','수원영통점','경기 수원시 영통구','031-0207-8812',8],['YI08','용인수지점','경기 용인시 수지구','031-0262-4410',6],
+  ['GY09','일산점','경기 고양시 일산동구','031-0905-3321',5],['IC10','인천송도점','인천 연수구','032-0858-6610',7],
+  ['BC11','부천점','경기 부천시','032-0321-9902',4],['PT12','평택점','경기 평택시','031-0652-7731',3],
+  ['DJ13','대전유성점','대전 유성구','042-0822-4401',6],['CJ14','청주점','충북 청주시','043-0268-1150',3],
+  ['CA15','천안점','충남 천안시','041-0556-2290',4],['DG16','대구수성점','대구 수성구','053-0741-8830',6],
+  ['GJ17','광주상무점','광주 서구','062-0381-4471',5],['BS18','부산해운대점','부산 해운대구','051-0744-2201',7],
+  ['BS19','부산서면점','부산 부산진구','051-0805-6630',4],['US20','울산점','울산 남구','052-0271-3380',3],
+  ['CW21','창원점','경남 창원시','055-0285-1190',3],['JJ22','제주점','제주 제주시','064-0752-8840',2]
+].map(([id, name, area, tel, w]) => ({id, name, area, tel, w, active: 'Y', pin: '******'}));
+const dealerById = id => DEALERS.find(d => d.id === id);
+const ME = 'BD06';
+
+const TYPES = ['썬팅', 'PPF', '유리막 코팅'];
+const PRODUCTS = [
+  {id:'T1', type:'썬팅', name:'새결 세라믹 S', years:5},
+  {id:'T2', type:'썬팅', name:'새결 스탠다드', years:3},
+  {id:'P1', type:'PPF', name:'새결 PPF 클리어', years:5},
+  {id:'P2', type:'PPF', name:'새결 PPF 매트', years:4},
+  {id:'C1', type:'유리막 코팅', name:'새결 글라스 3년형', years:3},
+  {id:'C2', type:'유리막 코팅', name:'새결 글라스 5년형', years:5}
+];
+const prodById = id => PRODUCTS.find(p => p.id === id);
+const FRONT = ['35%', '50%', '70%'], SIDE = ['5%', '15%', '30%'];
+const AREAS = ['생활보호 패키지', '프런트 범퍼', '후드', '사이드미러', '헤드램프', '전체 랩핑'];
+const CARS = ['현대 그랜저','현대 아반떼','현대 싼타페','현대 팰리세이드','현대 투싼','현대 아이오닉 5','기아 쏘렌토','기아 카니발','기아 스포티지','기아 K5','기아 K8','기아 EV6','제네시스 G80','제네시스 GV70','제네시스 GV80','제네시스 G90','테슬라 모델 Y','테슬라 모델 3','BMW 5시리즈','벤츠 E클래스','볼보 XC60','KG 토레스'];
+const SUR = ['김','이','박','최','정','강','조','윤','장','임','한','오','서','신','권','황','안','송','류','홍'];
+const GIV = ['민수','지훈','서연','현우','지은','도윤','수빈','예준','하은','준호','미경','성민','영희','정훈','유진','태현','소영','동현','은지','재원','혜진','상우','나연','우진','보람'];
+const PLATE_CH = '가나다라마거너더러머버서어저고노도로모보소오조구누두루무부수우주'.split('');
+
+const SETTINGS = {soonDays: 90, pinCheck: '사용', maxTry: 5, lockMin: 10, company: '새결 오토필름'};
+
+function detailOf(it) {
+  const p = prodById(it.pid);
+  if (p.type === '썬팅') return `전면 ${it.front} · 측후면 ${it.side}`;
+  if (p.type === 'PPF') return it.areas.join(', ');
+  return '전체 도장면';
+}
+
+const won = n => n ? n.toLocaleString('ko-KR') : '';
+function priceOf(items) {
+  let t = 0;
+  items.forEach(it => {
+    const p = prodById(it.pid);
+    if (p.type === '썬팅') t += p.id === 'T1' ? 680000 : 390000;
+    if (p.type === 'PPF') t += it.areas.includes('전체 랩핑') ? 5200000 : it.areas.length * 220000 + (p.id === 'P2' ? 100000 : 0);
+    if (p.type === '유리막 코팅') t += p.id === 'C1' ? 450000 : 690000;
+  });
+  return Math.round(t * (0.9 + rnd() * 0.25) / 10000) * 10000;
+}
+
+/* 기록 */
+const records = [];
+function addRecord(r) {
+  r.items.forEach(it => { it.exp = addDays(addYears(r.date, prodById(it.pid).years), -1); });
+  r.exp = r.items.reduce((m, it) => it.exp > m ? it.exp : m, r.items[0].exp);
+  records.push(r);
+  return r;
+}
+function statusOf(exp) {
+  const left = diffDays(TODAY, exp);
+  if (left < 0) return 'end';
+  if (left <= SETTINGS.soonDays) return 'warn';
+  return 'ok';
+}
+const ST_LABEL = {ok: '보증 중', warn: '곧 만료', end: '만료'};
+const ST_CHIP = {ok: 'ok', warn: 'warn', end: 'neu'};
+const chipHtml = st => `<span class="chip ${ST_CHIP[st]}">${ST_LABEL[st]}</span>`;
+
+// 체험용 3건 (오늘 날짜 기준으로 상태가 항상 같게)
+const SAMPLE_DEFS = [
+  {key:'ok', r7:'K7M3QP9', name:'김민수', phone:'010-2481-5678', car:'기아 쏘렌토', plate:'12가 3456', dealer:'BD06', date:addDays(TODAY, -370),
+    items:[{pid:'T1', front:'35%', side:'15%'}, {pid:'P1', areas:['생활보호 패키지', '헤드램프']}, {pid:'C1'}], memo:''},
+  {key:'warn', r7:'H4WD8N2', name:'박서연', phone:'010-7730-2214', car:'현대 그랜저', plate:'157고 8820', dealer:'GN01', date:addDays(addYears(TODAY, -3), 24),
+    items:[{pid:'T2', front:'50%', side:'15%'}, {pid:'C1'}], memo:''},
+  {key:'end', r7:'R6TC3XA', name:'이준호', phone:'010-5162-9031', car:'제네시스 GV70', plate:'68러 1209', dealer:'SW07', date:addDays(addYears(TODAY, -3), -40),
+    items:[{pid:'T2', front:'35%', side:'5%'}, {pid:'C1'}], memo:'앞유리 기존 필름 제거'}
+];
+const START = new Date(2021, 2, 2);
+const SPAN = diffDays(START, TODAY) - 1;
+const dealerPool = DEALERS.flatMap(d => Array(d.w).fill(d.id));
+function randomItems() {
+  const items = [];
+  if (rnd() < .68) items.push({pid: rnd() < .7 ? 'T1' : 'T2', front: pick(FRONT), side: pick(SIDE)});
+  if (rnd() < .42) { const a = rnd() < .55 ? ['생활보호 패키지'] : rnd() < .5 ? ['프런트 범퍼', '후드', '사이드미러'] : ['전체 랩핑']; items.push({pid: rnd() < .8 ? 'P1' : 'P2', areas: a}); }
+  if (rnd() < .38 || !items.length) items.push({pid: rnd() < .6 ? 'C1' : 'C2'});
+  return items;
+}
+(function seedData() {
+  const list = [];
+  for (let i = 0; i < 227; i++) {
+    const back = Math.floor(Math.pow(rnd(), 1.7) * SPAN) + 1;
+    const date = addDays(TODAY, -back);
+    const ph = `010-${String(2000 + Math.floor(rnd() * 7999))}-${String(1000 + Math.floor(rnd() * 8999))}`;
+    const plate = `${10 + Math.floor(rnd() * 89)}${rnd() < .25 ? Math.floor(rnd() * 9) : ''}${pick(PLATE_CH)} ${String(1000 + Math.floor(rnd() * 8999))}`;
+    list.push({date, name: pick(SUR) + pick(GIV), phone: ph, car: pick(CARS), plate, dealer: pick(dealerPool), items: randomItems(), memo: rnd() < .12 ? pick(['기존 필름 제거', '재방문 점검 예약', '법인 차량', '썬루프 포함']) : '', r7: rand7()});
+  }
+  SAMPLE_DEFS.forEach(s => list.push({...s}));
+  list.sort((a, b) => a.date - b.date);
+  list.forEach(r => { r.code = makeCode(r.date, r.r7); r.issued = r.date; r.amount = priceOf(r.items); addRecord(r); });
+})();
+const byCode = c => records.find(r => r.code === c);
+const samples = SAMPLE_DEFS.map(s => records.find(r => r.r7 === s.r7));
+
+/* ---------- 공통 UI ---------- */
+let toastT;
+function toast(msg, kind = 'ok') {
+  $('#toastTxt').textContent = msg;
+  const ic = $('#toastIc'); ic.className = 'ok-ic ' + kind;
+  ic.innerHTML = `<svg class="ic"><use href="#i-${kind === 'ok' ? 'check' : kind === 'warn' ? 'excl' : 'info'}"/></svg>`;
+  const t = $('#toast');
+  t.classList.toggle('lift', !$('#certPane').hidden && !$('#v-customer').hidden && innerWidth < 1024);
+  t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600);
+}
+function setErr(input, msg) {
+  const box = input.closest('.field').querySelector('.err');
+  input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  if (!box) return;
+  box.hidden = !msg; if (msg) box.querySelector('span').textContent = msg;
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); return true; }
+  catch (e) {
+    const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch (e2) {} ta.remove(); return ok;
+  }
+}
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-fake]');
+  if (f) { e.preventDefault(); toast('데모에서는 보증서 확인 메뉴만 열려요', 'info'); }
+});
+
+/* ---------- 화면 전환 ---------- */
+const DB_NOTES = {customer: "고객이 카카오톡 링크로 여는 카페24 '보증서 확인' 화면이에요. 회사·이름·번호는 모두 예시예요.", dealer: '대리점이 발급하면 따로 모을 필요 없이 본사 구글 시트에 한 줄씩 쌓여요.', hq: "실제로는 회사 구글 계정의 시트 한 개예요. '시트'를 누르면 그 모습을 볼 수 있어요."};
+function showView(v, push = true) {
+  if (!['customer', 'dealer', 'hq'].includes(v)) v = 'customer';
+  $$('.db-seg button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === v)));
+  $$('.view').forEach(s => s.hidden = s.id !== 'v-' + v);
+  $('#dbNote').textContent = DB_NOTES[v];
+  if (v === 'hq') renderHQ();
+  if (v === 'dealer') renderRecent();
+  if (push && location.hash.slice(1).split('?')[0] !== v) history.replaceState(null, '', '#' + v);
+  scrollTo(0, 0);
+}
+$$('.db-seg button').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
+
+/* ============ 고객 조회 ============ */
+const inNo = $('#inNo'), inPin = $('#inPin'), lkMsg = $('#lkMsg'), lkBtn = $('#lkBtn');
+const fails = {};
+inNo.addEventListener('input', () => {
+  const c = cleanCode(inNo.value); inNo.value = fmtCode(c);
+  if (inNo.getAttribute('aria-invalid') === 'true') setErr(inNo, '');
+  lkMsg.hidden = true;
+});
+inPin.addEventListener('input', () => { inPin.value = inPin.value.replace(/\D/g, '').slice(0, 4); if (inPin.getAttribute('aria-invalid') === 'true') setErr(inPin, ''); lkMsg.hidden = true; });
+inNo.addEventListener('blur', () => { const c = cleanCode(inNo.value); if (c.length && c.length < 12) setErr(inNo, `보증번호 12자리를 모두 넣어 주세요. 지금 ${c.length}자리예요`); });
+
+function codeProblem(c) {
+  if (!c.length) return '보증번호를 넣어 주세요';
+  if (c.length < 12) return `보증번호 12자리를 모두 넣어 주세요. 지금 ${c.length}자리예요`;
+  if (!/^\d{2}(0[1-9]|1[0-2])$/.test(c.slice(0, 4))) return '앞 4자리는 시공한 해와 달이에요. 예: 2025년 10월이면 2510';
+  if (/[01IO]/.test(c.slice(4))) return '뒤 8자리에는 0, 1, O, I가 들어가지 않아요. 비슷한 글자를 확인해 주세요';
+  if (checkChar(c.slice(0, 11)) !== c[11]) return '번호 중 한 글자가 다른 것 같아요. 카카오톡 메시지의 번호와 한 글자씩 비교해 주세요';
+  return '';
+}
+function showMsg(kind, title, body, action) {
+  lkMsg.className = 'lk-msg' + (kind === 'neu' ? ' neu' : '');
+  lkMsg.innerHTML = `<svg class="ic"><use href="#i-${kind === 'neu' ? 'lock' : 'alert'}"/></svg><div><b>${esc(title)}</b><p>${body}</p>${action || ''}</div>`;
+  lkMsg.hidden = false;
+}
+$('#lookupForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if (lkBtn.classList.contains('is-loading')) return;
+  lkMsg.hidden = true;
+  const c = cleanCode(inNo.value), pin = inPin.value;
+  const pinOn = SETTINGS.pinCheck !== '안 함';
+  const cp = codeProblem(c);
+  setErr(inNo, cp);
+  const pp = pinOn && pin.length !== 4 ? (pin.length ? '휴대폰 번호 마지막 4자리를 모두 넣어 주세요' : '휴대폰 번호 마지막 4자리를 넣어 주세요') : '';
+  setErr(inPin, pp);
+  if (cp) { inNo.focus(); return; }
+  if (pp) { inPin.focus(); return; }
+  lkBtn.classList.add('is-loading'); lkBtn.disabled = true;
+  lkBtn.innerHTML = '<span class="spin"></span>보증서 찾는 중';
+  setTimeout(() => {
+    lkBtn.classList.remove('is-loading'); lkBtn.disabled = false; lkBtn.textContent = '보증서 확인하기';
+    const r = byCode(c);
+    const f = fails[c] || {n: 0, until: 0};
+    if (f.until > Date.now()) { showMsg('neu', '잠시 조회를 막아 두었어요', `휴대폰 뒷자리가 ${SETTINGS.maxTry}번 틀려서 ${SETTINGS.lockMin}분 동안 이 번호를 조회할 수 없어요. 다른 사람이 번호를 맞혀 보는 것을 막기 위해서예요.`); return; }
+    if (!r) {
+      showMsg('bad', '등록된 보증서를 찾지 못했어요', `<span class="num">${fmtCode(c)}</span> 번호로 발급된 보증서가 없어요. 시공 당일이라면 아직 발급 전일 수 있어요. 시공한 대리점에 문의해 주세요.`);
+      return;
+    }
+    if (pinOn && r.phone.slice(-4) !== pin) {
+      f.n += 1; if (f.n >= SETTINGS.maxTry) { f.until = Date.now() + SETTINGS.lockMin * 60000; f.n = 0; }
+      fails[c] = f;
+      if (f.until > Date.now()) { showMsg('neu', '잠시 조회를 막아 두었어요', `휴대폰 뒷자리가 ${SETTINGS.maxTry}번 틀려서 ${SETTINGS.lockMin}분 동안 이 번호를 조회할 수 없어요.`); return; }
+      setErr(inPin, `등록된 휴대폰 번호와 달라요. ${SETTINGS.maxTry}번 중 ${f.n}번 틀렸어요`);
+      inPin.focus(); inPin.select();
+      return;
+    }
+    fails[c] = {n: 0, until: 0};
+    openCert(r);
+  }, 650);
+});
+
+function renderTry() {
+  $('#tryList').innerHTML = samples.map((r, i) => `
+    <button class="try-row" type="button" data-sample="${i}">
+      ${chipHtml(statusOf(r.exp))}
+      <span class="try-car">${esc(r.car)} · ${esc(dealerById(r.dealer).name)}</span>
+      <span class="try-no">${fmtCode(r.code)} · 뒷자리 ${r.phone.slice(-4)}</span>
+    </button>`).join('');
+}
+$('#tryCard').addEventListener('click', e => {
+  const b = e.target.closest('[data-sample]');
+  const t = e.target.closest('[data-try]');
+  if (!b && !t) return;
+  setErr(inNo, ''); setErr(inPin, ''); lkMsg.hidden = true;
+  if (b) { const r = samples[+b.dataset.sample]; inNo.value = fmtCode(r.code); inPin.value = r.phone.slice(-4); $('#lookupForm').requestSubmit(); return; }
+  const s = samples[0];
+  if (t.dataset.try === 'typo') { const c = s.code.slice(0, 11) + (s.code[11] === 'A' ? 'B' : 'A'); inNo.value = fmtCode(c); inPin.value = s.phone.slice(-4); }
+  else { let c; do { const r7 = rand7(); c = makeCode(addDays(TODAY, -20), r7); } while (byCode(c)); inNo.value = fmtCode(c); inPin.value = '1234'; }
+  $('#lookupForm').requestSubmit();
+});
+
+let current = null;
+function openCert(r, opts = {}) {
+  current = r;
+  const st = statusOf(r.exp);
+  const d = dealerById(r.dealer);
+  const left = diffDays(TODAY, r.exp);
+  const total = diffDays(r.date, r.exp) || 1;
+  const pct = Math.min(100, Math.max(0, Math.round((diffDays(r.date, TODAY) / total) * 100)));
+  let head, foot;
+  if (st === 'ok') { head = `${fKo(r.exp)}까지 보증돼요`; foot = `<span>${fDot(r.date)} 시공</span><span>남은 기간 <b>${remainText(TODAY, r.exp)}</b></span>`; }
+  else if (st === 'warn') { head = left === 0 ? '오늘 보증이 끝나요' : `${left}일 뒤 보증이 끝나요`; foot = `<span>${fDot(r.date)} 시공</span><span><b>${fDot(r.exp)}</b>까지</span>`; }
+  else { head = `${fKo(r.exp)}에 보증이 끝났어요`; foot = `<span>${fDot(r.date)} 시공</span><span>보증 기간 <b>${remainText(r.date, addDays(r.exp, 1))}</b></span>`; }
+  const hero = $('#certHero');
+  hero.className = 'hero ' + st;
+  hero.innerHTML = `
+    <div class="hero-h">${chipHtml(st)}<button class="circle" type="button" data-share aria-label="보증서 주소 복사"><svg class="ic"><use href="#i-link"/></svg></button></div>
+    <p class="greet"><span>${esc(maskName(r.name))} 님의 시공 보증서</span><b>${head}</b></p>
+    <div><div class="meter" role="img" aria-label="보증 기간 ${st === 'end' ? 100 : pct}% 지남"><i style="width:${st === 'end' ? 100 : Math.max(4, pct)}%"></i></div><div class="meter-f">${foot}</div></div>`;
+  $('#certInfo').innerHTML = `
+    <div><dt>차량</dt><dd>${esc(r.car)}<small>${esc(maskPlate(r.plate))}</small></dd></div>
+    <div><dt>시공일</dt><dd class="num">${fKo(r.date)}</dd></div>
+    <div><dt>휴대폰</dt><dd class="num">${maskPhone(r.phone)}</dd></div>
+    <div><dt>보증번호</dt><dd class="num">${fmtCode(r.code)}</dd></div>`;
+  $('#certItems').innerHTML = r.items.map(it => {
+    const p = prodById(it.pid), s = statusOf(it.exp);
+    return `<li><div class="it-h"><b>${p.type}</b>${chipHtml(s)}</div><p class="it-p">${esc(p.name)} · ${esc(detailOf(it))}</p><p class="it-f">보증 ${p.years}년 · ${fDot(it.exp)}까지</p></li>`;
+  }).join('');
+  $('#certDealer').innerHTML = `<span class="dealer-ic"><svg class="ic"><use href="#i-store"/></svg></span><div><b>새결 ${esc(d.name)}</b><small>${esc(d.area)} · ${esc(d.tel)}</small><small>평일 9:00~19:00 · 토 10:00~16:00</small></div>`;
+  $('#certCall').href = 'tel:' + d.tel.replace(/-/g, '');
+  $('#hDealer').textContent = st === 'ok' ? 'A/S는 시공한 대리점에서 받아요' : '재시공·연장 상담도 시공한 대리점에서 받아요';
+  $('#certFine').textContent = `${fDot(r.issued)} 발급 · 본사 기록과 같은 내용이에요 · ${fDot(TODAY)} 조회`;
+  $('#certTopNo').textContent = '보증번호 ' + fmtCode(r.code);
+  $('#lookupPane').hidden = true; $('#lkGreet').hidden = true;
+  $('#certPane').hidden = false; $('#certTop').hidden = false;
+  $('#site').classList.add('has-cert');
+  if (opts.view !== false) showView('customer');
+  scrollTo(0, 0);
+  if (opts.note) toast(opts.note, 'info');
+}
+function closeCert() {
+  $('#certPane').hidden = true; $('#certTop').hidden = true;
+  $('#lookupPane').hidden = false; $('#lkGreet').hidden = false;
+  $('#site').classList.remove('has-cert');
+  current = null; scrollTo(0, 0); inNo.focus();
+}
+$('#backToLookup').addEventListener('click', closeCert);
+$('#btnPdf').addEventListener('click', () => { toast('인쇄 창에서 "PDF로 저장"을 골라 주세요', 'info'); setTimeout(() => window.print(), 300); });
+
+/* 이미지로 저장 — 캔버스로 직접 그려요(외부 라이브러리 없음) */
+function wrapLines(ctx, text, maxW) {
+  const out = []; let line = '';
+  for (const ch of text) { const t = line + ch; if (ctx.measureText(t).width > maxW && line) { out.push(line); line = ch.trim() ? ch : ''; } else line = t; }
+  if (line) out.push(line); return out;
+}
+function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function drawCert(r) {
+  const W = 1080, P = 72, F = '"Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
+  const st = statusOf(r.exp), d = dealerById(r.dealer), left = diffDays(TODAY, r.exp);
+  const colors = {ok: ['#E3F6ED', '#127A4F', '#1FA971'], warn: ['#FFF3D4', '#7A5600', '#F2B01E'], end: ['#F0F2F5', '#4E5968', '#8B95A1']}[st];
+  const head = st === 'ok' ? `${fKo(r.exp)}까지 보증돼요` : st === 'warn' ? `${left}일 뒤 보증이 끝나요` : `${fKo(r.exp)}에 보증이 끝났어요`;
+  const c = document.createElement('canvas'); const ctx = c.getContext('2d');
+  const rows = [['차량', `${r.car} · ${maskPlate(r.plate)}`], ['시공일', fKo(r.date)], ['휴대폰', maskPhone(r.phone)], ['시공 대리점', `새결 ${d.name} · ${d.tel}`]];
+  const H = 872 + rows.length * 76 + r.items.length * 132;
+  c.width = W; c.height = H;
+  ctx.fillStyle = '#F7F8FA'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#fff'; rr(ctx, 32, 32, W - 64, H - 64, 40); ctx.fill(); ctx.strokeStyle = '#EBEEF2'; ctx.lineWidth = 2; ctx.stroke();
+  let y = 32 + P;
+  ctx.fillStyle = '#191F28'; rr(ctx, P + 32, y - 8, 48, 48, 12); ctx.fill();
+  const bx = P + 32, by = y - 8, poly = (pts, c) => { ctx.fillStyle = c; ctx.beginPath(); pts.forEach(([px, py], i) => ctx[i ? 'lineTo' : 'moveTo'](bx + px * 2, by + py * 2)); ctx.closePath(); ctx.fill(); };
+  poly([[4, 17.5], [8.4, 7], [19.5, 7], [19.5, 17.5]], '#fff'); poly([[5.9, 13], [4, 17.5], [19.5, 17.5], [19.5, 13]], '#8B95A1');
+  ctx.textBaseline = 'middle'; ctx.fillStyle = '#191F28'; ctx.font = `700 34px ${F}`; ctx.fillText('새결 오토필름', P + 96, y + 16);
+  ctx.textAlign = 'right'; ctx.fillStyle = '#636D7B'; ctx.font = `500 28px ${F}`; ctx.fillText('시공 보증서', W - P - 32, y + 16); ctx.textAlign = 'left';
+  y += 88;
+  ctx.fillStyle = colors[0]; rr(ctx, P + 32, y, W - 2 * P - 64, 228, 32); ctx.fill();
+  const iy = y + 40;
+  ctx.font = `600 26px ${F}`; const lab = ST_LABEL[st]; const lw = ctx.measureText(lab).width + 64;
+  ctx.fillStyle = '#fff'; rr(ctx, P + 64, iy, lw, 48, 24); ctx.fill();
+  ctx.fillStyle = colors[2]; ctx.beginPath(); ctx.arc(P + 88, iy + 24, 7, 0, 7); ctx.fill();
+  ctx.fillStyle = colors[1]; ctx.fillText(lab, P + 104, iy + 25);
+  ctx.fillStyle = '#4E5968'; ctx.font = `500 28px ${F}`; ctx.fillText(`${maskName(r.name)} 님의 시공 보증서`, P + 64, iy + 96);
+  ctx.fillStyle = '#191F28'; ctx.font = `700 44px ${F}`; ctx.fillText(head, P + 64, iy + 148);
+  y += 228 + 48;
+  ctx.font = `500 28px ${F}`;
+  rows.forEach(([k, v], i) => {
+    if (i) { ctx.fillStyle = '#EBEEF2'; ctx.fillRect(P + 32, y - 2, W - 2 * P - 64, 2); }
+    ctx.fillStyle = '#636D7B'; ctx.font = `500 28px ${F}`; ctx.fillText(k, P + 32, y + 38);
+    ctx.fillStyle = '#191F28'; ctx.font = `600 30px ${F}`; ctx.fillText(v, P + 240, y + 38);
+    y += 76;
+  });
+  y += 32;
+  ctx.fillStyle = '#191F28'; ctx.font = `700 32px ${F}`; ctx.fillText('시공 제품과 보증 기간', P + 32, y + 20); y += 64;
+  r.items.forEach(it => {
+    const p = prodById(it.pid), s = statusOf(it.exp);
+    ctx.fillStyle = '#F7F8FA'; rr(ctx, P + 32, y, W - 2 * P - 64, 112, 20); ctx.fill();
+    ctx.fillStyle = '#191F28'; ctx.font = `700 30px ${F}`; ctx.fillText(p.type, P + 64, y + 36);
+    ctx.textAlign = 'right'; ctx.fillStyle = s === 'ok' ? '#127A4F' : s === 'warn' ? '#7A5600' : '#4E5968'; ctx.font = `600 26px ${F}`; ctx.fillText(`${ST_LABEL[s]} · ${fDot(it.exp)}까지`, W - P - 64, y + 36); ctx.textAlign = 'left';
+    ctx.fillStyle = '#4E5968'; ctx.font = `500 26px ${F}`;
+    const line = wrapLines(ctx, `${p.name} · ${detailOf(it)} · 보증 ${p.years}년`, W - 2 * P - 128)[0];
+    ctx.fillText(line, P + 64, y + 78);
+    y += 132;
+  });
+  y += 24;
+  ctx.fillStyle = '#EBEEF2'; ctx.fillRect(P + 32, y, W - 2 * P - 64, 2); y += 48;
+  ctx.fillStyle = '#191F28'; ctx.font = `700 34px ${F}`; ctx.fillText(`보증번호 ${fmtCode(r.code)}`, P + 32, y);
+  ctx.fillStyle = '#636D7B'; ctx.font = `500 24px ${F}`;
+  ctx.fillText(`${fDot(r.issued)} 발급 · 새결 오토필름 '보증서 확인'에서 다시 볼 수 있어요`, P + 32, y + 52);
+  ctx.fillText('차를 팔거나 주인이 바뀌면 보증이 끝나요', P + 32, y + 92);
+  return c.toDataURL('image/png');
+}
+async function openImage() {
+  if (!current) return;
+  try { await document.fonts.ready; } catch (e) {}
+  const url = drawCert(current);
+  $('#bsImg').src = url;
+  $('#bsDown').href = url;
+  $('#bsDown').download = `새결_보증서_${current.code}.png`;
+  $('#imgSheet').hidden = false;
+  $('#bsClose').focus();
+}
+$('#btnImg').addEventListener('click', openImage);
+$('#certHero').addEventListener('click', async e => {
+  if (!e.target.closest('[data-share]') || !current) return;
+  const url = `${SITE}?no=${current.code}`;
+  if (navigator.share && innerWidth < 1024) { try { await navigator.share({title: '새결 오토필름 시공 보증서', url}); return; } catch (err) { if (err.name === 'AbortError') return; } }
+  const okc = await copyText(url); toast(okc ? '보증서 주소를 복사했어요. 다시 볼 때 붙여 넣으면 돼요' : '이 브라우저는 복사를 막아 두었어요. 카카오톡으로 받은 링크를 그대로 쓰면 돼요', okc ? 'ok' : 'warn');
+});
+$('#bsClose').addEventListener('click', () => { $('#imgSheet').hidden = true; });
+$('#imgSheet').addEventListener('click', e => { if (e.target.id === 'imgSheet') $('#imgSheet').hidden = true; });
+$('#bsDown').addEventListener('click', () => toast('보증서 이미지를 내려받았어요'));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('#imgSheet').hidden = true; $('#drawerBack').hidden = true; } });
+$('#openDrawer').addEventListener('click', () => { $('#drawerBack').hidden = false; $('#closeDrawer').focus(); });
+$('#closeDrawer').addEventListener('click', () => { $('#drawerBack').hidden = true; });
+$('#drawerBack').addEventListener('click', e => { if (e.target.id === 'drawerBack' || e.target.closest('[data-close]')) { e.preventDefault(); $('#drawerBack').hidden = true; } });
+
+function kakaoText(r, full = true) {
+  const d = dealerById(r.dealer);
+  const types = [...new Set(r.items.map(it => prodById(it.pid).type))].join(', ');
+  return `[새결 오토필름] ${full ? r.name : maskName(r.name)} 님, 시공 보증서가 발급됐어요.\n\n차량: ${r.car} (${full ? r.plate : maskPlate(r.plate)})\n시공: ${types}\n보증번호: ${fmtCode(r.code)}\n\n아래 주소에서 휴대폰 뒷자리 4자리를 넣으면 보증서를 볼 수 있어요.\n${SITE}?no=${r.code}\n\nA/S 문의: 새결 ${d.name} ${d.tel}`;
+}
+function renderWhere() {
+  const r = samples[0];
+  const t = esc(kakaoText(r, false)).replace(esc(`보증번호: ${fmtCode(r.code)}`), `보증번호: <mark>${fmtCode(r.code)}</mark>`);
+  $('#whereMsg').innerHTML = t;
+}
+
+/* ============ 대리점 발급 ============ */
+const fName = $('#fName'), fPhone = $('#fPhone'), fCar = $('#fCar'), fPlate = $('#fPlate'), fDate = $('#fDate'), fMemo = $('#fMemo');
+$('#carList').innerHTML = CARS.map(c => `<option value="${c}">`).join('');
+fDate.value = fIso(TODAY); fDate.max = fIso(TODAY);
+fPhone.addEventListener('input', () => { fPhone.value = fmtPhone(fPhone.value); });
+const fAmt = $('#fAmt');
+fAmt.addEventListener('input', () => { const n = parseInt(fAmt.value.replace(/\D/g, '').slice(0, 9) || '0', 10); fAmt.value = n ? n.toLocaleString('ko-KR') : ''; });
+const chosen = new Set(['썬팅']);
+function renderTypes() {
+  $('#typeChips').innerHTML = TYPES.map(t => `<label class="rc"><input type="checkbox" value="${t}" ${chosen.has(t) ? 'checked' : ''}><span><svg class="ic"><use href="#i-check"/></svg>${t}</span></label>`).join('');
+  renderSubs();
+}
+function prodOpts(type) { return PRODUCTS.filter(p => p.type === type).map(p => `<option value="${p.id}">${esc(p.name)} — 보증 ${p.years}년</option>`).join(''); }
+const radios = (name, list, def) => `<div class="rchips">${list.map(v => `<label class="rc"><input type="radio" name="${name}" value="${v}" ${v === def ? 'checked' : ''}><span>${v}</span></label>`).join('')}</div>`;
+const subState = {};
+function renderSubs() {
+  // 고른 값 유지
+  $$('#typeSubs [data-sub]').forEach(el => {
+    const t = el.dataset.sub; subState[t] = {pid: $('select', el).value, front: $('input[name=front]:checked', el)?.value, side: $('input[name=side]:checked', el)?.value, areas: $$('input[name=area]:checked', el).map(i => i.value)};
+  });
+  $('#typeSubs').innerHTML = TYPES.filter(t => chosen.has(t)).map(t => {
+    const s = subState[t] || {};
+    const yrs = prodById(s.pid || PRODUCTS.find(p => p.type === t).id).years;
+    let extra = '';
+    if (t === '썬팅') extra = `<div class="field"><span class="sublabel">전면 농도</span>${radios('front', FRONT, s.front || '35%')}</div><div class="field"><span class="sublabel">측후면 농도</span>${radios('side', SIDE, s.side || '15%')}</div>`;
+    if (t === 'PPF') extra = `<div class="field"><span class="sublabel">시공 부위</span><div class="rchips">${AREAS.map(a => `<label class="rc"><input type="checkbox" name="area" value="${a}" ${(s.areas || []).includes(a) ? 'checked' : ''}><span><svg class="ic"><use href="#i-check"/></svg>${a}</span></label>`).join('')}</div><p class="err" hidden><svg class="ic"><use href="#i-alert"/></svg><span></span></p></div>`;
+    return `<div class="tsub" data-sub="${t}">
+      <div class="tsub-h"><b>${t}</b><span class="tag" data-yrs>보증 ${yrs}년</span></div>
+      <div class="field"><label class="sublabel" for="p-${t}">제품</label><select class="input" id="p-${t}">${prodOpts(t)}</select></div>
+      ${extra}</div>`;
+  }).join('');
+  TYPES.forEach(t => { const s = subState[t]; const sel = $(`#typeSubs [data-sub="${t}"] select`); if (s && sel && s.pid) sel.value = s.pid; });
+}
+$('#typeChips').addEventListener('change', e => {
+  const i = e.target; if (i.checked) chosen.add(i.value); else chosen.delete(i.value);
+  $('#typeErr').hidden = true; renderSubs();
+});
+$('#typeSubs').addEventListener('change', e => {
+  const sub = e.target.closest('[data-sub]'); if (!sub) return;
+  if (e.target.tagName === 'SELECT') $('[data-yrs]', sub).textContent = `보증 ${prodById(e.target.value).years}년`;
+  if (e.target.name === 'area') { const er = $('.err', sub); if (er) er.hidden = true; }
+});
+const plateRe = /^\d{2,3}\s?[가-힣]\s?\d{4}$/;
+const rules = [
+  [fName, v => !v.trim() ? '고객 이름을 써 주세요' : !/^[가-힣a-zA-Z\s]{2,20}$/.test(v.trim()) ? '이름은 한글이나 영문으로 2자 이상 써 주세요' : ''],
+  [fPhone, v => !v ? '휴대폰 번호를 써 주세요' : !/^010-\d{4}-\d{4}$/.test(v) ? '휴대폰 번호 11자리를 모두 써 주세요' : ''],
+  [fCar, v => !v.trim() ? '차종을 써 주세요. 목록에 없으면 직접 써도 돼요' : ''],
+  [fPlate, v => !v.trim() ? '차량번호를 써 주세요' : !plateRe.test(v.trim()) ? "차량번호를 '12가 3456'처럼 써 주세요" : ''],
+  [fDate, v => !v ? '시공일을 골라 주세요' : parseIso(v) > TODAY ? '오늘 이후 날짜는 고를 수 없어요' : '']
+];
+rules.forEach(([el, fn]) => {
+  el.addEventListener('blur', () => { if (el.value) setErr(el, fn(el.value)); });
+  el.addEventListener('input', () => { if (el.getAttribute('aria-invalid') === 'true') setErr(el, fn(el.value)); });
+});
+const dSubmit = $('#dSubmit');
+$('#dForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if (dSubmit.disabled) return;
+  let first = null;
+  rules.forEach(([el, fn]) => { const m = fn(el.value); setErr(el, m); if (m && !first) first = el; });
+  if (!chosen.size) { $('#typeErr').hidden = false; $('#typeErr span').textContent = '시공한 항목을 하나 이상 골라 주세요'; first = first || $('#typeChips input'); }
+  const ppf = $('#typeSubs [data-sub="PPF"]');
+  if (ppf && !$$('input[name=area]:checked', ppf).length) { const er = $('.err', ppf); er.hidden = false; $('span', er).textContent = 'PPF 시공 부위를 하나 이상 골라 주세요'; first = first || $('input[name=area]', ppf); }
+  if (first) { first.focus(); first.scrollIntoView({block: 'center', behavior: 'smooth'}); return; }
+  if (dealerById(ME).active !== 'Y') { toast('본사가 이 대리점을 사용 중지했어요. 본사에 문의해 주세요', 'warn'); return; }
+  const items = TYPES.filter(t => chosen.has(t)).map(t => {
+    const sub = $(`#typeSubs [data-sub="${t}"]`); const it = {pid: $('select', sub).value};
+    if (t === '썬팅') { it.front = $('input[name=front]:checked', sub).value; it.side = $('input[name=side]:checked', sub).value; }
+    if (t === 'PPF') it.areas = $$('input[name=area]:checked', sub).map(i => i.value);
+    return it;
+  });
+  const plateN = fPlate.value.trim().replace(/^(\d{2,3})\s?([가-힣])\s?(\d{4})$/, '$1$2 $3');
+  const dup = records.find(r => r.phone === fPhone.value && r.plate === plateN && fIso(r.date) === fDate.value);
+  if (dup) { toast(`같은 차량을 오늘 이미 발급했어요 (${fmtCode(dup.code)})`, 'warn'); renderIssued(dup); return; }
+  dSubmit.disabled = true; dSubmit.innerHTML = '<span class="spin"></span>발급하는 중';
+  setTimeout(() => {
+    const date = parseIso(fDate.value);
+    let code; do { code = makeCode(date, rand7()); } while (byCode(code));
+    const r = addRecord({code, date, issued: TODAY, name: fName.value.trim(), phone: fPhone.value, car: fCar.value.trim(), plate: plateN, dealer: ME, items, memo: fMemo.value.trim(), amount: parseInt(fAmt.value.replace(/\D/g, '') || '0', 10), isNew: true});
+    dSubmit.innerHTML = '<svg class="ic"><use href="#i-check"/></svg>발급 완료'; $('#dReset').textContent = '새로 쓰기';
+    renderIssued(r); renderRecent(); renderTry();
+    toast('보증서를 발급했어요. 본사 기록에도 저장됐어요');
+    if (innerWidth < 1024) $('#issueCard').scrollIntoView({behavior: 'smooth', block: 'start'});
+  }, 700);
+});
+function unlockSubmit() { if (dSubmit.disabled && !dSubmit.querySelector('.spin')) { dSubmit.disabled = false; dSubmit.textContent = '보증서 발급하기'; $('#dReset').textContent = '처음부터 다시 쓰기'; } }
+$('#dForm').addEventListener('input', unlockSubmit);
+$('#dForm').addEventListener('change', unlockSubmit);
+$('#dForm').addEventListener('reset', () => {
+  setTimeout(() => {
+    unlockSubmit();
+    $$('#dForm .input').forEach(i => setErr(i, '')); $('#typeErr').hidden = true;
+    chosen.clear(); chosen.add('썬팅'); Object.keys(subState).forEach(k => delete subState[k]);
+    fDate.value = fIso(TODAY); renderTypes();
+  });
+});
+function renderIssuedEmpty() {
+  $('#issueCard').innerHTML = `<div class="ir-empty"><div class="e-ic"><svg class="ic"><use href="#i-shield"/></svg></div><h3>발급하면 여기에 보증번호가 생겨요</h3><p>고객에게 보낼 카카오톡 문구도 같이 만들어져요</p></div>`;
+}
+let shownRec = null;
+function renderIssued(r) {
+  shownRec = r;
+  const rowNo = records.indexOf(r) + 2;
+  const sms = `sms:${r.phone.replace(/-/g, '')}${/iPhone|iPad/.test(navigator.userAgent) ? '&' : '?'}body=${encodeURIComponent(kakaoText(r))}`;
+  $('#issueCard').innerHTML = `
+    <div class="ir-h"><span class="ok-ic"><svg class="ic"><use href="#i-check"/></svg></span><div><h3>보증서를 발급했어요</h3><p>${esc(r.name)} 님 · ${esc(r.car)} · ${esc(r.plate)}</p></div></div>
+    <div class="ir-no"><div><small>보증번호</small><b>${fmtCode(r.code)}</b></div><button class="ib" type="button" data-copy="code" aria-label="보증번호 복사"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+    <div class="ir-msg"><small>카카오톡으로 보낼 문구</small><div class="kmsg">${esc(kakaoText(r))}</div></div>
+    <div class="ir-btns"><button class="btn btn-primary btn-lg" type="button" data-copy="msg"><svg class="ic"><use href="#i-copy"/></svg>문구 복사하기</button><a class="btn btn-secondary btn-lg" href="${esc(sms)}" data-sms><svg class="ic"><use href="#i-msg"/></svg>문자로 보내기</a></div>
+    <div class="ir-f"><span>본사 기록 <b class="num">${rowNo - 1}</b>번째로 저장됐어요</span><button class="link link-brand" type="button" data-open="${r.code}">고객 화면에서 확인하기</button></div>`;
+}
+$('#issueCard').addEventListener('click', async e => {
+  const c = e.target.closest('[data-copy]'), o = e.target.closest('[data-open]'), s = e.target.closest('[data-sms]');
+  const r = shownRec; if (!r) return;
+  if (c) { const ok = await copyText(c.dataset.copy === 'code' ? fmtCode(r.code) : kakaoText(r)); toast(ok ? (c.dataset.copy === 'code' ? '보증번호를 복사했어요' : '문구를 복사했어요. 카카오톡에 붙여 넣어 주세요') : '이 브라우저는 복사를 막아 두었어요. 문구를 길게 눌러 복사해 주세요', ok ? 'ok' : 'warn'); }
+  if (s && innerWidth >= 1024) { e.preventDefault(); toast('휴대폰에서 누르면 문자 앱이 열려요', 'info'); }
+  if (o) { const rec = byCode(o.dataset.open); inNo.value = fmtCode(rec.code); inPin.value = rec.phone.slice(-4); openCert(rec, {note: '대리점이 넣은 내용 그대로 고객에게 보여요'}); }
+});
+function renderRecent() {
+  const mine = records.filter(r => r.dealer === ME).slice(-5).reverse();
+  $('#recentList').innerHTML = mine.map(r => `<li><button class="rrow" type="button" data-open="${r.code}"><b>${esc(maskName(r.name))} · ${esc(r.car)}${r.isNew ? '<span class="new-dot" aria-label="방금 발급"></span>' : ''}</b><small>${fmtCode(r.code)} · ${fDot(r.date)}</small>${chipHtml(statusOf(r.exp))}</button></li>`).join('');
+}
+$('#recentList').addEventListener('click', e => { const b = e.target.closest('[data-open]'); if (b) openCert(byCode(b.dataset.open), {note: '고객이 보는 화면이에요'}); });
+
+/* ============ 본사 관리 ============ */
+const tState = {q: '', dealer: '', st: 'all', page: 1, mode: 'list', tab: 'certs'};
+const PER = 10;
+function filtered() {
+  const q = tState.q.trim().toUpperCase().replace(/[-\s]/g, '');
+  return records.filter(r => {
+    if (tState.dealer && r.dealer !== tState.dealer) return false;
+    if (tState.st !== 'all' && statusOf(r.exp) !== tState.st) return false;
+    if (!q) return true;
+    return r.code.includes(q) || r.name.includes(tState.q.trim()) || r.plate.replace(/\s/g, '').endsWith(q) || r.car.includes(tState.q.trim());
+  }).slice().reverse();
+}
+function renderHQ() {
+  $('#hqTotal').textContent = `${records.length.toLocaleString()}건`;
+  if (tState.mode === 'sheet') { renderSheet(); return; }
+  const ym = d => d.getFullYear() * 12 + d.getMonth();
+  const thisM = records.filter(r => ym(r.date) === ym(TODAY));
+  const lastM = records.filter(r => ym(r.date) === ym(TODAY) - 1).length;
+  const dlt = thisM.length - lastM;
+  $('#kMonth').innerHTML = `${thisM.length}<small>건</small>`;
+  const sumM = thisM.reduce((t, r) => t + (r.amount || 0), 0);
+  $('#kMonthF').innerHTML = `<span class="delta">${dlt >= 0 ? '+' : ''}${dlt}건</span>지난달 ${lastM}건 · 시공 금액 ${Math.round(sumM / 10000).toLocaleString('ko-KR')}만 원`;
+  $('#kOk').innerHTML = `${records.filter(r => statusOf(r.exp) !== 'end').length}<small>건</small>`;
+  $('#kSoonL').textContent = `${SETTINGS.soonDays}일 안에 만료`;
+  $('#kSoon').innerHTML = `${records.filter(r => statusOf(r.exp) === 'warn').length}<small>건</small>`;
+  const activeD = DEALERS.filter(d => d.active === 'Y').length;
+  $('#kDealer').innerHTML = `${activeD}<small>곳</small>`;
+  $('#kDealerF').textContent = `이번 달 발급한 곳 ${new Set(thisM.map(r => r.dealer)).size}곳`;
+  if (!$('#tDealer').options.length) $('#tDealer').innerHTML = `<option value="">전체 대리점</option>` + DEALERS.map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('');
+  $('#tDealer').value = tState.dealer;
+  // 상태 칩
+  const base = records.filter(r => !tState.dealer || r.dealer === tState.dealer);
+  const cnt = s => s === 'all' ? base.length : base.filter(r => statusOf(r.exp) === s).length;
+  $('#tFilters').innerHTML = [['all', '전체'], ['ok', '보증 중'], ['warn', '곧 만료'], ['end', '만료']].map(([k, l]) => `<button class="fchip" type="button" data-st="${k}" aria-pressed="${tState.st === k}">${l} <span class="n">${cnt(k)}</span></button>`).join('');
+  const list = filtered();
+  const pages = Math.max(1, Math.ceil(list.length / PER));
+  tState.page = Math.min(tState.page, pages);
+  const rows = list.slice((tState.page - 1) * PER, tState.page * PER);
+  $('#tCnt').textContent = (tState.q || tState.dealer || tState.st !== 'all') ? `${list.length}건 찾음` : `${list.length}건`;
+  $('#tBody').innerHTML = rows.length ? rows.map(r => {
+    const types = [...new Set(r.items.map(it => prodById(it.pid).type))].join(', ');
+    return `<tr><td class="id"><button type="button" data-open="${r.code}">${fmtCode(r.code)}</button></td><td class="cu"><b>${esc(maskName(r.name))} · ${esc(r.car)}</b><small>${esc(maskPlate(r.plate))}</small></td><td class="pr">${esc(types)}</td><td class="dl">${esc(dealerById(r.dealer).name)}</td><td class="dt"><span class="d1">${fDot(r.date)}</span><small><span class="tl">~ </span>${fDot(r.exp)}</small></td><td class="st">${chipHtml(statusOf(r.exp))}</td></tr>`;
+  }).join('') : `<tr class="empty-row"><td colspan="6"><div class="empty"><div class="e-ic"><svg class="ic"><use href="#i-search"/></svg></div><h3>찾는 보증서가 없어요</h3><p>번호 12자리, 고객 이름, 차량번호 뒤 4자리로 찾아보세요</p><button class="btn btn-secondary btn-sm" type="button" id="clearSearch">검색 지우기</button></div></td></tr>`;
+  $('#tRange').textContent = list.length ? `${(tState.page - 1) * PER + 1}–${Math.min(tState.page * PER, list.length)} / ${list.length}건` : '0건';
+  $('#tPager').hidden = pages < 2;
+  const pg = [];
+  const from = Math.max(1, Math.min(tState.page - 2, pages - 4)), to = Math.min(pages, from + 4);
+  pg.push(`<button type="button" data-pg="${tState.page - 1}" ${tState.page === 1 ? 'disabled' : ''} aria-label="이전 페이지"><svg class="ic ic-s"><use href="#i-chev-l"/></svg></button>`);
+  for (let i = from; i <= to; i++) pg.push(`<button type="button" data-pg="${i}" ${i === tState.page ? 'aria-current="page"' : ''}>${i}</button>`);
+  pg.push(`<button type="button" data-pg="${tState.page + 1}" ${tState.page === pages ? 'disabled' : ''} aria-label="다음 페이지"><svg class="ic ic-s"><use href="#i-chev-r"/></svg></button>`);
+  $('#tPager').innerHTML = pg.join('');
+  // 대리점별
+  const yr = records.filter(r => r.date.getFullYear() === TODAY.getFullYear());
+  const counts = DEALERS.map(d => ({d, n: yr.filter(r => r.dealer === d.id).length, all: records.filter(r => r.dealer === d.id).length})).sort((a, b) => b.n - a.n || b.all - a.all);
+  const max = counts[0].n || 1;
+  let show = counts.slice(0, 8);
+  if (tState.dealer && !show.some(c => c.d.id === tState.dealer)) show = [...show.slice(0, 7), counts.find(c => c.d.id === tState.dealer)];
+  const anySel = !!tState.dealer;
+  $('#hBarsList').innerHTML = show.map((c, i) => `<button class="hb" type="button" data-dealer="${c.d.id}" aria-pressed="${anySel ? c.d.id === tState.dealer : i === 0}"><span class="nm">${esc(c.d.name)}</span><span class="v">${c.n}건</span><span class="tr"><span class="fl" style="width:${Math.max(3, c.n / max * 100)}%"></span></span></button>`).join('');
+  $('#hBarsNote').textContent = `올해 ${yr.length}건 · 나머지 ${DEALERS.length - show.length}곳은 목록 위 '전체 대리점'에서 골라요`;
+}
+$('#tSearch').addEventListener('input', e => { tState.q = e.target.value; tState.page = 1; renderHQ(); });
+$('#tDealer').addEventListener('change', e => { tState.dealer = e.target.value; tState.page = 1; renderHQ(); });
+$('#hqList').addEventListener('click', e => {
+  const st = e.target.closest('[data-st]'), pg = e.target.closest('[data-pg]'), dl = e.target.closest('[data-dealer]'), op = e.target.closest('[data-open]');
+  if (st) { tState.st = st.dataset.st; tState.page = 1; renderHQ(); }
+  if (pg && !pg.disabled) { tState.page = +pg.dataset.pg; renderHQ(); }
+  if (dl) { tState.dealer = tState.dealer === dl.dataset.dealer ? '' : dl.dataset.dealer; tState.page = 1; renderHQ(); }
+  if (op) openCert(byCode(op.dataset.open), {note: '본사 미리보기 · 고객이 보는 화면과 같아요'});
+  if (e.target.id === 'clearSearch') { tState.q = ''; tState.st = 'all'; tState.dealer = ''; $('#tSearch').value = ''; renderHQ(); $('#tSearch').focus(); }
+});
+$$('[data-hqmode]').forEach(b => b.addEventListener('click', () => {
+  tState.mode = b.dataset.hqmode;
+  $$('[data-hqmode]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  $('#hqList').hidden = tState.mode !== 'list'; $('#hqSheet').hidden = tState.mode !== 'sheet';
+  $('#btnCsv').hidden = tState.mode === 'sheet';
+  renderHQ();
+}));
+$('#btnCsv').addEventListener('click', () => {
+  const head = ['보증번호', '시공일', '고객명', '차종', '차량번호', '시공 항목', '시공 금액(원)', '대리점', '만료일', '상태'];
+  const lines = filtered().map(r => [fmtCode(r.code), fDot(r.date), maskName(r.name), r.car, maskPlate(r.plate), r.items.map(it => prodById(it.pid).name).join(' / '), r.amount || '', dealerById(r.dealer).name, fDot(r.exp), ST_LABEL[statusOf(r.exp)]]);
+  const csv = '﻿' + [head, ...lines].map(l => l.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'})); a.download = `새결_보증서_${fIso(TODAY)}.csv`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast(`${lines.length}건을 엑셀 파일로 내려받았어요`);
+});
+
+/* 시트 모습 */
+const LET = 'ABCDEFGHIJKLMNOP';
+function sheetDef(tab) {
+  if (tab === 'certs') {
+    const start = Math.max(0, records.length - 14);
+    return {
+      hint: "칸을 두 번 누르면 고칠 수 있어요(고객명·차종·차량번호·메모). 고치면 고객 조회에 바로 반영돼요. 상태 칸은 수식이라 자동으로 바뀌어요.",
+      cols: [['보증번호', 130], ['시공일', 96], ['고객명', 80, 'name'], ['휴대폰', 124], ['차종', 128, 'car'], ['차량번호', 100, 'plate'], ['시공 항목', 220], ['시공 금액', 96, null, 'r'], ['대리점', 96], ['만료일', 96], ['상태', 72], ['메모', 160, 'memo']],
+      rows: records.slice(start).map((r, i) => ({rowNo: start + i + 2, ref: r, isNew: r.isNew, cells: [fmtCode(r.code), fDot(r.date), r.name, r.phone, r.car, r.plate, r.items.map(it => `${prodById(it.pid).name}(${detailOf(it)})`).join(' + '), won(r.amount), dealerById(r.dealer).name, fDot(r.exp), ST_LABEL[statusOf(r.exp)], r.memo]})),
+      gap: start > 0 ? start : 0
+    };
+  }
+  if (tab === 'dealers') return {
+    hint: "대리점을 늘리려면 맨 아래 줄에 쓰기만 하면 돼요. '사용'을 N으로 바꾸면 그 대리점은 바로 발급할 수 없어요(분당판교점을 N으로 바꾼 뒤 대리점 발급 화면에서 시험해 보세요).",
+    cols: [['코드', 64], ['대리점', 120, 'dname'], ['지역', 150], ['전화', 120, 'tel'], ['발급 PIN', 84], ['사용', 56, 'active']],
+    rows: DEALERS.map((d, i) => ({rowNo: i + 2, ref: d, cells: [d.id, d.name, d.area, d.tel, d.pin, d.active]})).concat([{rowNo: DEALERS.length + 2, cells: ['', '', '', '', '', ''], blank: true}])
+  };
+  if (tab === 'products') return {
+    hint: '새 제품이나 시공 종류는 여기에 한 줄 쓰면 발급 화면 목록에 바로 생겨요. 이미 발급된 보증서의 기간은 바뀌지 않아요.',
+    cols: [['종류', 100], ['제품 이름', 150], ['보증 기간(년)', 100], ['보증 내용', 280]],
+    rows: PRODUCTS.map((p, i) => ({rowNo: i + 2, cells: [p.type, p.name, p.years, p.type === '썬팅' ? '변색, 기포, 들뜸, 벗겨짐' : p.type === 'PPF' ? '황변, 갈라짐, 들뜸, 벗겨짐' : '발수·광택이 정상보다 빨리 사라짐']})).concat([{rowNo: PRODUCTS.length + 2, cells: ['', '', '', ''], blank: true}])
+  };
+  return {
+    hint: "'곧 만료 기준'을 30으로 바꿔 보세요. 본사 목록과 고객 화면의 상태가 바로 바뀌어요. '휴대폰 뒷자리 확인'을 '안 함'으로 바꾸면 고객은 번호만 넣어요.",
+    cols: [['항목', 200], ['값', 140, 'setting'], ['설명', 320]],
+    rows: [
+      ['soonDays', '곧 만료 기준(일)', SETTINGS.soonDays, '남은 날이 이보다 적으면 "곧 만료"로 보여요'],
+      ['pinCheck', '휴대폰 뒷자리 확인', SETTINGS.pinCheck, '사용 / 안 함'],
+      ['maxTry', '뒷자리 틀림 허용', SETTINGS.maxTry, '이만큼 틀리면 잠시 막아요'],
+      ['lockMin', '막는 시간(분)', SETTINGS.lockMin, ''],
+      ['company', '회사 이름', SETTINGS.company, '보증서와 카카오톡 문구에 들어가요']
+    ].map((s, i) => ({rowNo: i + 2, key: s[0], cells: [s[1], s[2], s[3]]}))
+  };
+}
+let selCell = null;
+function renderSheet() {
+  const def = sheetDef(tState.tab);
+  $('#shHint').textContent = def.hint;
+  const head = `<thead><tr><th class="rn"></th>${def.cols.map((c, i) => `<th style="min-width:${c[1]}px">${LET[i]}</th>`).join('')}</tr></thead>`;
+  const hdr = `<tr class="hdr"><td class="rn">1</td>${def.cols.map(c => `<td>${esc(c[0])}</td>`).join('')}</tr>`;
+  const gap = def.gap ? `<tr><td class="rn">⋮</td>${def.cols.map(() => '<td></td>').join('')}</tr>` : '';
+  const body = def.rows.map((row, ri) => `<tr><td class="rn">${row.rowNo}</td>${row.cells.map((v, ci) => {
+    const col = def.cols[ci]; const ed = col[2] && !row.blank;
+    let cls = ed ? 'ed' : '';
+    if (tState.tab === 'certs' && ci === 10) cls += ' f-' + statusOf(row.ref.exp);
+    if (col[3]) cls += ' ' + col[3];
+    if (row.isNew) cls += ' new';
+    if (changedCells.has(`${tState.tab}:${row.rowNo}:${ci}`)) cls += ' chg';
+    return `<td class="${cls.trim()}" data-r="${ri}" data-c="${ci}" ${ed ? 'tabindex="0"' : ''}>${esc(v === undefined ? '' : v)}</td>`;
+  }).join('')}</tr>`).join('');
+  $('#shGrid').innerHTML = head + '<tbody>' + hdr + gap + body + '</tbody>';
+  $('#shGrid').def = def;
+  $$('#shTabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tState.tab)));
+  if (tState.tab === 'certs') { const w = $('#shWrap'); w.scrollTop = w.scrollHeight; }
+}
+const changedCells = new Set();
+$('#shTabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (b) { tState.tab = b.dataset.tab; renderSheet(); $('#shRef').textContent = 'A1'; $('#shFx').textContent = '셀을 누르면 내용이 여기에 보여요'; } });
+function cellInfo(td) { const def = $('#shGrid').def; const ri = +td.dataset.r, ci = +td.dataset.c; return {def, ri, ci, row: def.rows[ri], col: def.cols[ci]}; }
+$('#shGrid').addEventListener('click', e => {
+  const td = e.target.closest('td[data-c]'); if (!td || td.querySelector('input')) return;
+  $$('#shGrid td.sel').forEach(x => x.classList.remove('sel')); td.classList.add('sel');
+  const {row, ci} = cellInfo(td);
+  $('#shRef').textContent = LET[ci] + row.rowNo; $('#shFx').textContent = tState.tab === 'certs' && ci === 10 ? `=IF(J${row.rowNo}<TODAY(),"만료",IF(J${row.rowNo}-TODAY()<=설정!B2,"곧 만료","보증 중"))` : (td.textContent || ' ');
+});
+function startEdit(td) {
+  const {row, col} = cellInfo(td); if (!col[2] || row.blank) return;
+  const old = td.textContent; td.innerHTML = `<input value="${esc(old)}" aria-label="${esc(col[0])} 고치기">`;
+  const inp = $('input', td); inp.focus(); inp.select();
+  const done = save => {
+    if (!td.contains(inp)) return;
+    const v = inp.value.trim();
+    if (save && v !== old) {
+      const err = commitCell(row, col[2], v);
+      if (err) { toast(err, 'warn'); td.textContent = old; return; }
+      changedCells.add(`${tState.tab}:${row.rowNo}:${+td.dataset.c}`);
+      toast('시트를 고쳤어요. 고객 조회에도 바로 반영돼요');
+      renderSheet(); return;
+    }
+    td.textContent = old;
+  };
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') done(true); if (e.key === 'Escape') done(false); });
+  inp.addEventListener('blur', () => done(true));
+}
+$('#shGrid').addEventListener('dblclick', e => { const td = e.target.closest('td.ed'); if (td) startEdit(td); });
+$('#shGrid').addEventListener('keydown', e => { const td = e.target.closest('td.ed'); if (td && e.key === 'Enter' && !td.querySelector('input')) { e.preventDefault(); startEdit(td); } });
+function commitCell(row, key, v) {
+  const r = row.ref;
+  if (key === 'name') { if (!/^[가-힣a-zA-Z\s]{2,20}$/.test(v)) return '이름은 한글이나 영문 2자 이상이어야 해요'; r.name = v; }
+  if (key === 'car') { if (!v) return '차종을 비울 수 없어요'; r.car = v; }
+  if (key === 'plate') { if (!plateRe.test(v)) return "차량번호는 '12가 3456' 모양이어야 해요"; r.plate = v; }
+  if (key === 'memo') r.memo = v;
+  if (key === 'dname') { if (!v) return '대리점 이름을 비울 수 없어요'; r.name = v; $('#tDealer').innerHTML = ''; }
+  if (key === 'tel') r.tel = v;
+  if (key === 'active') { const u = v.toUpperCase(); if (!['Y', 'N'].includes(u)) return '사용 칸에는 Y 또는 N만 쓸 수 있어요'; r.active = u; }
+  if (key === 'setting') {
+    const k = row.key;
+    if (['soonDays', 'maxTry', 'lockMin'].includes(k)) { const n = parseInt(v, 10); if (!(n > 0 && n < 1000)) return '1 이상의 숫자를 써 주세요'; SETTINGS[k] = n; }
+    if (k === 'pinCheck') { if (!['사용', '안 함'].includes(v)) return "'사용' 또는 '안 함'만 쓸 수 있어요"; SETTINGS.pinCheck = v; applyPin(); }
+    if (k === 'company') { if (!v) return '회사 이름을 비울 수 없어요'; SETTINGS.company = v; }
+    renderTry(); renderRecent();
+  }
+  if (current && !$('#certPane').hidden) openCert(current, {view: false});
+  return '';
+}
+function applyPin() { const on = SETTINGS.pinCheck !== '안 함'; $('#pinField').hidden = !on; if (!on) setErr(inPin, ''); }
+
+/* ---------- 시작 ---------- */
+renderTry(); renderWhere(); renderTypes(); renderIssuedEmpty(); renderRecent();
+const hash = location.hash.slice(1);
+const params = new URLSearchParams(location.search);
+const qNo = params.get('no');
+showView(hash || 'customer', false);
+if (qNo) { inNo.value = fmtCode(cleanCode(qNo)); inPin.focus(); }
+window.__demo = {records, samples, openCert, byCode, SETTINGS, showView};
+})();
+</script>
+</body>
+</html>
