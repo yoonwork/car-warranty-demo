@@ -6,40 +6,46 @@
 <meta name="robots" content="noindex">
 <title>새결 오토필름 전자보증서 데모</title>
 <meta name="description" content="자동차 필름·코팅 시공 보증서를 보증번호로 조회하고, 대리점이 발급하면 본사 구글 시트에 쌓이는 구조를 보여 주는 데모예요. 회사와 고객 정보는 모두 예시예요.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23191F28'/%3E%3Cpath d='M6 21 26 9' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='12' fill='%231A1917'/%3E%3Cpath d='M4.5 16.5 8.2 8h11v8.5z' fill='%23fff'/%3E%3Cpath d='M6.1 12.8 4.5 16.5h14.7v-3.7z' fill='%239A968C'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style id="tokens">
 :root{
   color-scheme: light;
 
-  /* 브랜드 색 — 팔레트 A 블루(기본). 화면당 주요 버튼·선택 상태·강조 데이터에만 */
-  --brand:#2457F5;        /* 흰 글자 대비 5.6:1 */
-  --brand-hover:#1B45D6;
-  --brand-press:#1638B0;
-  --brand-text:#1B45D6;   /* 연한 바탕 위 브랜드 글자 */
-  --brand-tint:#EEF3FF;   /* 아주 연한 바탕 */
-  --brand-tint-2:#D9E4FF; /* 약한 막대·선택 칸 */
-  --ring:0 0 0 3px rgba(36,87,245,.25);
+  /* ▼▼ 의뢰인 카페24 사이트에 맞춰 바꾸는 색은 이 3개뿐이에요 ▼▼ */
+  --paper:#F3F1EC;   /* 페이지 바탕 — 따뜻한 회백색 */
+  --brand:#1A1917;   /* 주요 버튼·큰 제목·선택된 것 — 먹색 (흰 글자 대비 17.6:1) */
+  --accent:#2E4BDB;  /* 포인트만: 링크·포커스·배지·숫자 단위 — 코발트 (흰 바탕 6.7:1, 회백색 5.9:1) */
+  /* ▲▲ 여기까지. 아래 색은 위 3개에서 자동으로 만들어져요 ▲▲ */
+
+  /* 자동 색의 기본값 (color-mix를 못 쓰는 오래된 브라우저용) */
+  --brand-hover:#33322F;
+  --brand-press:#000000;
+  --brand-tint:#ECEAE4;   /* 선택 칸 바탕 */
+  --brand-tint-2:#DCD9D1; /* 약한 막대 */
+  --brand-text:#2E4BDB;   /* 링크 글자 = 포인트 색 */
+  --accent-tint:#ECEFFC;
+  --ring:0 0 0 3px rgba(46,75,219,.28);
   --on-brand:#FFFFFF;
 
-  /* 회색 — 살짝 푸른 회색 */
-  --bg:#F2F4F7;     /* 페이지 바탕 */
+  /* 회색 — 살짝 따뜻한 회색 (바탕색이 바뀌어도 무난하게 중간 톤) */
+  --bg:var(--paper);  /* 페이지 바탕 */
   --card:#FFFFFF;   /* 카드 */
-  --soft:#F7F8FA;   /* 표 머리줄·카드 안 연한 칸 */
-  --track:#ECEFF3;  /* 알약 내비·세그먼트 바탕 */
-  --line:#E5E8EB;   /* 입력칸·표 선 */
-  --line-2:#EBEEF2; /* 카드 테두리·구분선 */
-  --ink:#191F28;    /* 제목·본문 */
-  --ink-2:#4E5968;  /* 보조 본문 */
-  --mut:#636D7B;    /* 설명·라벨 (흰·회색 바탕 모두 4.5:1 이상) */
-  --mut-2:#9AA3AE;  /* placeholder·비활성 전용 (본문 금지) */
+  --soft:#F8F7F4;   /* 표 머리줄·카드 안 연한 칸 */
+  --track:#ECE9E3;  /* 알약 내비·세그먼트 바탕 */
+  --line:#E2DED6;   /* 입력칸·표 선 */
+  --line-2:#E8E5DE; /* 카드 테두리·구분선 */
+  --ink:#1A1917;    /* 제목·본문 */
+  --ink-2:#4B4943;  /* 보조 본문 */
+  --mut:#6B6860;    /* 설명·라벨 (흰 5.6:1, 회백색 4.9:1) */
+  --mut-2:#9A978E;  /* placeholder·비활성 전용 (본문 금지) */
 
   /* 상태 색 — 글자 / 바탕 / 점 */
   --ok:#127A4F;   --ok-bg:#E3F6ED;   --ok-dot:#1FA971;
   --warn:#7A5600; --warn-bg:#FFF3D4; --warn-dot:#F2B01E;
   --bad:#BF2930;  --bad-bg:#FFE3E4;  --bad-dot:#E5484D;
   --info:#175CD3; --info-bg:#EAF2FF; --info-dot:#2E7CF6;
-  --neu:#4E5968;  --neu-bg:#F0F2F5;  --neu-dot:#8B95A1;
+  --neu:#4B4943;  --neu-bg:#EFEDE8;  --neu-dot:#8F8B82;
 
   /* 글꼴과 크기 */
   --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
@@ -67,6 +73,22 @@
   --h-sm:32px; --h-md:40px; --h-lg:48px; --h-cta:52px;
   --container:1200px;
 }
+/* 위 3개 색에서 나머지 색 만들기 (iOS 16.2+, 안드로이드 크롬 111+) */
+@supports (color: color-mix(in srgb, red, blue)){
+  :root{
+    --brand-hover:color-mix(in srgb, var(--brand) 84%, #fff);
+    --brand-press:color-mix(in srgb, var(--brand) 80%, #000);
+    --brand-tint:color-mix(in srgb, var(--brand) 6%, var(--paper));
+    --brand-tint-2:color-mix(in srgb, var(--brand) 15%, var(--paper));
+    --brand-text:var(--accent);
+    --accent-tint:color-mix(in srgb, var(--accent) 9%, #fff);
+    --ring:0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent);
+    --soft:color-mix(in srgb, var(--paper) 40%, #fff);
+    --track:color-mix(in srgb, var(--paper) 96.5%, #1A1917);
+    --line:color-mix(in srgb, var(--paper) 91%, #1A1917);
+    --line-2:color-mix(in srgb, var(--paper) 94%, #1A1917);
+  }
+}
 </style>
 <style>
 /* ===== 기본 (컴포넌트키트 기준) ===== */
@@ -79,7 +101,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 a{color:inherit}
-:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .num{font-variant-numeric:tabular-nums}
 .ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .ic-s{width:16px;height:16px}
@@ -95,16 +117,16 @@ a{color:inherit}
 .btn-sm{--h:var(--h-sm);padding:0 12px;font-size:var(--fs-13)}
 .btn-sm .ic{width:16px;height:16px}
 .btn-primary{background:var(--brand);color:var(--on-brand)}
-.btn-primary:hover{background:var(--brand-hover)}
+@media (hover:hover){.btn-primary:hover{background:var(--brand-hover)}}
 .btn-primary:active{background:var(--brand-press)}
 .btn-secondary{background:var(--card);border-color:var(--line);color:var(--ink)}
-.btn-secondary:hover{background:var(--soft);border-color:#D5DAE0}
+.btn-secondary:hover{background:var(--soft);border-color:var(--mut-2)}
 .btn-secondary:active{background:var(--track)}
 .btn-ghost{background:transparent;color:var(--ink-2)}
 .btn-ghost:hover{background:var(--track);color:var(--ink)}
 .btn:disabled{background:var(--track);border-color:transparent;color:var(--mut-2);cursor:not-allowed}
 .btn.is-loading{cursor:progress}
-.btn-cta{--h:var(--h-cta);width:100%;border-radius:var(--r-md);font-size:var(--fs-17)}
+.btn-cta{--h:56px;width:100%;border-radius:var(--r-pill);font-size:var(--fs-17)}
 .spin{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;flex:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 .ib{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);display:inline-grid;place-items:center;color:var(--ink);flex:none;padding:0}
@@ -115,6 +137,7 @@ a{color:inherit}
 .link{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-14);font-weight:600;color:var(--ink-2);text-decoration:none;background:none;border:0;padding:4px 0;white-space:nowrap}
 .link:hover{color:var(--ink)}
 .link-brand{color:var(--brand-text)}
+.cert-top .link,.try-x .link,.ir-f .link{min-height:44px}
 .link-brand:hover{color:var(--brand-press)}
 
 /* 칩 */
@@ -127,9 +150,9 @@ a{color:inherit}
 .chip.on-white{background:var(--card)}
 .tag{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:6px;background:var(--soft);border:1px solid var(--line-2);font-size:var(--fs-12);color:var(--ink-2);white-space:nowrap}
 .fchip{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--card);font-size:var(--fs-14);font-weight:500;color:var(--ink-2);white-space:nowrap;flex:none}
-.fchip:hover{border-color:#D5DAE0;color:var(--ink)}
+.fchip:hover{border-color:var(--mut-2);color:var(--ink)}
 .fchip .n{color:var(--mut);font-weight:600;font-variant-numeric:tabular-nums}
-.fchip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+.fchip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--on-brand);font-weight:600}
 .fchip[aria-pressed="true"] .n{color:inherit;opacity:.8}
 
 /* 카드·폼 */
@@ -144,11 +167,11 @@ a{color:inherit}
 .label .opt{color:var(--mut);font-weight:400;margin-left:4px}
 .input{height:var(--h-lg);width:100%;border:1px solid var(--line);border-radius:var(--r-md);padding:0 14px;font-size:var(--fs-15);background:var(--card);color:var(--ink);transition:border-color .15s,box-shadow .15s;min-width:0}
 .input::placeholder{color:var(--mut-2)}
-.input:hover{border-color:#D1D6DB}
-.input:focus{outline:0;border-color:var(--brand);box-shadow:var(--ring)}
+.input:hover{border-color:#CFCAC0}
+.input:focus{outline:0;border-color:var(--accent);box-shadow:var(--ring)}
 .input[aria-invalid="true"]{border-color:var(--bad-dot)}
 .input[aria-invalid="true"]:focus{box-shadow:0 0 0 3px rgba(229,72,77,.2)}
-select.input{appearance:none;-webkit-appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23636D7B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+select.input{appearance:none;-webkit-appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236B6860' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
 .help{font-size:var(--fs-13);color:var(--mut)}
 .affix{position:relative}
 .affix .input{padding-right:40px;text-align:right;font-variant-numeric:tabular-nums}
@@ -162,8 +185,8 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 .rc{position:relative}
 .rc input{position:absolute;opacity:0;width:1px;height:1px}
 .rc span{display:inline-flex;align-items:center;gap:6px;height:var(--h-md);padding:0 16px;border:1px solid var(--line);border-radius:var(--r-pill);font-size:var(--fs-14);font-weight:500;color:var(--ink-2);background:var(--card);cursor:pointer;white-space:nowrap}
-.rc span:hover{border-color:#D1D6DB}
-.rc input:checked+span{border-color:var(--brand);background:var(--brand-tint);color:var(--brand-text);font-weight:600}
+.rc span:hover{border-color:#CFCAC0}
+.rc input:checked+span{border-color:var(--brand);background:var(--brand-tint);color:var(--ink);font-weight:600}
 .rc input:focus-visible+span{box-shadow:var(--ring)}
 .rc .ic{width:16px;height:16px;display:none}
 .rc input:checked+span .ic{display:block}
@@ -176,16 +199,16 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 .toast .ok-ic{width:24px;height:24px;border-radius:50%;background:var(--ok-dot);display:grid;place-items:center;flex:none;color:#fff}
 .toast .ok-ic .ic{width:14px;height:14px;stroke-width:2.6}
 .toast .ok-ic.warn{background:var(--warn-dot);color:var(--ink)}
-.toast .ok-ic.info{background:#4E5968}
+.toast .ok-ic.info{background:#5A5852}
 
 /* ===== 데모 바 (고객 사이트 밖) ===== */
 .demobar{background:var(--ink);color:#fff}
 .db-in{display:flex;align-items:center;gap:var(--sp-3);min-height:56px}
 .db-tag{font-size:var(--fs-12);font-weight:700;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.14);flex:none}
-.db-title{font-size:var(--fs-13);color:#C9D1DB;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.db-title{font-size:var(--fs-13);color:#CFCBC2;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .db-title b{color:#fff;font-weight:600;margin-right:8px}
 .db-seg{margin-left:auto;display:flex;background:rgba(255,255,255,.1);border-radius:var(--r-pill);padding:4px;gap:2px;flex:none}
-.db-seg button{height:36px;padding:0 16px;border:0;background:none;color:#C9D1DB;font-size:var(--fs-14);font-weight:500;border-radius:var(--r-pill);white-space:nowrap}
+.db-seg button{height:36px;padding:0 16px;border:0;background:none;color:#CFCBC2;font-size:var(--fs-14);font-weight:500;border-radius:var(--r-pill);white-space:nowrap}
 .db-seg button:hover{color:#fff}
 .db-seg button[aria-selected="true"]{background:#fff;color:var(--ink);font-weight:600}
 .db-seg button:focus-visible{outline-color:#fff}
@@ -196,41 +219,98 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 }
 
 /* ===== 고객: 카페24 사이트 틀 ===== */
-.site{background:var(--soft);min-height:calc(100vh - 56px);display:flex;flex-direction:column;--cw:948px}
+.site{background:var(--bg);min-height:calc(100vh - 56px);display:flex;flex-direction:column;--cw:948px}
 .site>.wrap,.site>header,.site>footer{width:100%}
-.site>.s-bh{max-width:calc(var(--cw) + 48px)}
+.site>.s-bh,.site>.about{max-width:calc(var(--cw) + 48px)}
 @media (max-width:1023px){.site{--cw:560px}}
-@media (max-width:640px){.site>.s-bh{max-width:calc(var(--cw) + 32px)}}
-.s-head{background:var(--card);border-bottom:1px solid var(--line-2)}
-.s-head-in{display:flex;align-items:center;gap:var(--sp-8);height:72px}
-.s-logo{display:flex;align-items:center;gap:var(--sp-2);font-weight:700;font-size:var(--fs-17);letter-spacing:-.02em;text-decoration:none;color:var(--ink);white-space:nowrap}
-.s-mark{width:28px;height:28px;border-radius:var(--r-sm);background:var(--ink);display:grid;place-items:center;flex:none}
-.s-mark svg{width:20px;height:20px}
-.s-nav{display:flex;gap:28px;height:100%}
-.s-nav a{font-size:var(--fs-15);color:var(--ink-2);text-decoration:none;display:flex;align-items:center;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+@media (max-width:640px){.site>.s-bh,.site>.about{max-width:calc(var(--cw) + 32px)}}
+.s-head{background:var(--bg);border-bottom:1px solid var(--line)}
+.s-head-in{display:flex;align-items:center;gap:var(--sp-10);height:72px}
+.s-logo{display:flex;align-items:center;gap:var(--sp-2);font-weight:700;font-size:var(--fs-17);letter-spacing:-.03em;text-decoration:none;color:var(--ink);white-space:nowrap}
+.s-logo b{font-weight:800}
+.s-mark{width:28px;height:28px;border-radius:50%;background:var(--brand);display:grid;place-items:center;flex:none}
+.s-mark svg{width:18px;height:18px}
+.s-nav{display:flex;gap:24px;height:100%}
+.s-nav a{font-size:var(--fs-14);color:var(--ink-2);text-decoration:none;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.s-nav a::before{content:"+";font-weight:400;color:var(--mut-2)}
 .s-nav a:hover{color:var(--ink)}
-.s-nav a[aria-current="page"]{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
-.s-tools{margin-left:auto;display:flex;align-items:center;gap:var(--sp-1)}
-.s-tools .t-txt{font-size:var(--fs-14);color:var(--ink-2);text-decoration:none;padding:8px}
+.s-nav a[aria-current="page"]{color:var(--ink);font-weight:600}
+.s-nav a[aria-current="page"]::before{color:var(--accent);font-weight:600}
+.s-tools{margin-left:auto;display:flex;align-items:center;gap:var(--sp-2)}
+.s-tools .t-txt{display:inline-flex;align-items:center;height:40px;padding:0 20px;border:1px solid var(--ink);border-radius:var(--r-pill);font-size:var(--fs-14);font-weight:600;color:var(--ink);text-decoration:none}
+.s-tools .t-txt:hover{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.s-tools .ib-plain:hover,.s-menu:hover{background:var(--track)}
 .s-menu{display:none}
 @media (max-width:1023px){
   .s-head-in{height:56px;gap:var(--sp-2)}
   .s-nav,.s-tools .t-txt{display:none}
   .s-menu{display:inline-grid;margin-left:-8px}
 }
-.s-bh{padding-top:var(--sp-10);padding-bottom:var(--sp-6)}
-.crumb{display:flex;align-items:center;gap:4px;font-size:var(--fs-13);color:var(--mut);flex-wrap:wrap}
-.crumb .ic{width:14px;height:14px}
-.crumb b{color:var(--ink-2);font-weight:600}
-@media (max-width:640px){.crumb{display:none}.s-bh .greet,.cert-top{margin-top:0}}
-.greet{display:flex;flex-direction:column;gap:4px;margin-top:var(--sp-3)}
+.s-bh{padding-top:var(--sp-10);padding-bottom:var(--sp-8)}
+.cert-top{margin-top:0}
+
+/* 히어로 — 큰 글자 + 사진 한 장. 휴대폰에서 화면 높이의 35% 이내 */
+.bh{display:grid;grid-template-columns:minmax(0,560px) 340px;gap:var(--sp-12);justify-content:center;align-items:end}
+.dot-label{display:flex;align-items:center;gap:8px;font-size:var(--fs-13);font-weight:500;color:var(--mut);line-height:20px}
+.dot-label::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--brand);flex:none}
+.giant{font-size:96px;font-weight:800;letter-spacing:-.05em;line-height:.95;color:var(--ink);margin:var(--sp-3) 0 0 -.04em;white-space:nowrap}
+.bh-lead{font-size:var(--fs-17);color:var(--ink-2);margin-top:var(--sp-5);max-width:24em;text-wrap:balance}
+.bh-photo{position:relative;margin:0;height:212px;border-radius:var(--r-xl);background:var(--brand)}
+.bh-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 46%;border-radius:inherit;filter:grayscale(1) contrast(1.04)}
+.badge{position:absolute;left:-44px;bottom:24px;width:88px;height:88px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;pointer-events:none}
+.badge svg.ring{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.badge svg.ring text{font-size:11.5px;font-weight:600;fill:currentColor;letter-spacing:.06em}
+.badge .s-mark{width:30px;height:30px;background:#fff}
+.badge .s-mark svg{width:20px;height:20px}
+@media (max-width:1023px){
+  .s-bh{padding-top:var(--sp-8);padding-bottom:var(--sp-6)}
+  .bh{grid-template-columns:minmax(0,1fr);gap:var(--sp-5)}
+  .giant{font-size:80px}
+  .bh-photo{height:176px}
+  .badge{left:auto;right:20px;bottom:auto;top:-44px}
+}
+@media (max-width:640px){
+  .s-bh{padding-top:var(--sp-3);padding-bottom:var(--sp-4)}
+  .bh{gap:var(--sp-3)}
+  .giant{font-size:clamp(44px,14.4vw,56px);margin-top:var(--sp-2)}
+  .bh-lead{display:none}
+  .bh-photo{height:120px;border-radius:var(--r-lg)}
+  .badge{width:clamp(64px,19.5vw,76px);height:clamp(64px,19.5vw,76px);right:8px;top:-28px}
+  .badge svg.ring text{font-size:10px}
+  .badge .s-mark{width:26px;height:26px}
+  .badge .s-mark svg{width:17px;height:17px}
+}
+@media (max-width:640px) and (max-height:700px){.bh-photo{height:88px}}
+/* 결과 화면의 상태 카드 안 문구 */
+.greet{display:flex;flex-direction:column;gap:4px}
 .greet span{font-size:var(--fs-17);color:var(--mut);font-weight:500;line-height:var(--lh-tight)}
 .greet b{font-size:var(--fs-32);font-weight:700;letter-spacing:-.03em;line-height:var(--lh-tight)}
-@media (max-width:640px){
-  .s-bh{padding-top:var(--sp-5);padding-bottom:var(--sp-5)}
-  .greet span{font-size:var(--fs-15)}
-  .greet b{font-size:var(--fs-24)}
+
+/* 브랜드 소개 띠 — 조회 아래 */
+.about{padding-bottom:var(--sp-16)}
+.ab-in{display:grid;grid-template-columns:340px minmax(0,560px);gap:var(--sp-12);justify-content:center;border-top:1px solid var(--line);padding-top:var(--sp-10)}
+.ab-photo{margin:var(--sp-5) 0 0;height:180px;border-radius:var(--r-lg);overflow:hidden;background:var(--track)}
+.ab-photo img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(1)}
+.ab-lead{font-size:var(--fs-24);font-weight:700;letter-spacing:-.03em;line-height:1.4;color:var(--ink)}
+.ab-nums{display:flex;gap:var(--sp-12);margin:var(--sp-8) 0 0}
+.ab-nums div{display:flex;flex-direction:column-reverse;gap:4px}
+.ab-nums dt{font-size:var(--fs-13);color:var(--mut)}
+.ab-nums dd{margin:0;font-size:72px;font-weight:800;letter-spacing:-.05em;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.ab-nums sup{font-size:var(--fs-20);font-weight:700;letter-spacing:0;color:var(--accent);vertical-align:top;position:relative;top:6px;margin-left:4px}
+@media (max-width:1023px){
+  .ab-in{grid-template-columns:minmax(0,560px);gap:var(--sp-4);padding-top:var(--sp-8)}
+  .ab-photo{display:none}
 }
+@media (max-width:640px){
+  .about{padding-bottom:var(--sp-12)}
+  .ab-lead{font-size:var(--fs-20)}
+  .ab-nums{gap:var(--sp-10);margin-top:var(--sp-6)}
+  .ab-nums dd{font-size:56px}
+  .ab-nums sup{font-size:var(--fs-17);top:4px}
+}
+.site.has-cert .about{display:none}
+.site.has-cert .s-bh{padding-top:var(--sp-6);padding-bottom:var(--sp-4)}
+@media (max-width:640px){.site.has-cert .s-bh{padding-top:var(--sp-4);padding-bottom:var(--sp-3)}}
 .c-grid{display:grid;grid-template-columns:minmax(0,560px) 340px;gap:var(--sp-12);justify-content:center;align-items:start;padding-bottom:var(--sp-16);flex:1}
 .c-main{display:grid;gap:var(--sp-3);min-width:0}
 .c-aside{display:grid;gap:var(--sp-3);min-width:0}
@@ -238,6 +318,8 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 @media (max-width:1023px){.site.has-cert .c-aside{display:none}}
 @media (max-width:1023px){.c-grid{grid-template-columns:minmax(0,560px);gap:var(--sp-3)}}
 .s-foot{background:var(--card);border-top:1px solid var(--line-2);padding:var(--sp-6) 0 var(--sp-8);font-size:var(--fs-12);color:var(--mut);line-height:1.7}
+.s-foot .credit{margin-top:var(--sp-2)}
+.s-foot .credit a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px}
 .s-foot b{color:var(--ink-2);font-weight:600}
 .s-foot .c24{margin-top:var(--sp-2);color:var(--mut)}
 
@@ -269,7 +351,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 .try-x .link{font-size:var(--fs-13)}
 /* 번호 안내 */
 .kmsg{background:var(--soft);border-radius:var(--r-md);padding:var(--sp-4);font-size:var(--fs-13);color:var(--ink-2);line-height:1.7;white-space:pre-line}
-.kmsg mark{background:var(--brand-tint-2);color:var(--ink);font-weight:700;border-radius:4px;padding:0 4px}
+.kmsg mark{background:var(--accent-tint);color:var(--ink);font-weight:700;border-radius:4px;padding:0 4px}
 .faq{}
 .faq details{border-bottom:1px solid var(--line-2)}
 .faq details:last-child{border-bottom:0}
@@ -288,7 +370,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 .hero-h{display:flex;justify-content:space-between;align-items:center}
 .hero .chip{background:var(--card)}
 .circle{width:44px;height:44px;border-radius:50%;border:0;background:var(--card);display:grid;place-items:center;color:var(--ink);padding:0}
-.circle:hover{background:#FBFCFD;box-shadow:var(--sh-pill)}
+.circle:hover{background:var(--soft);box-shadow:var(--sh-pill)}
 .hero .greet{margin-top:0}
 .hero .greet span{font-size:var(--fs-15);color:var(--ink-2)}
 .hero .greet b{font-size:var(--fs-24)}
@@ -330,7 +412,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 .dealer-call{width:100%;margin-top:var(--sp-4)}
 .fine{font-size:var(--fs-12);color:var(--mut);text-align:center;padding:var(--sp-2) 0 0}
 .cert-actions{display:flex;gap:var(--sp-2);margin-top:var(--sp-2)}
-.cert-actions .btn{--h:var(--h-cta);border-radius:var(--r-md);font-size:var(--fs-15)}
+.cert-actions .btn{--h:var(--h-cta);border-radius:var(--r-pill);font-size:var(--fs-15)}
 .cert-actions .btn-primary{flex:1;font-size:var(--fs-17)}
 @media (max-width:1023px){
   .cert-actions{position:fixed;left:0;right:0;bottom:0;z-index:20;margin:0;background:var(--card);border-top:1px solid var(--line-2);padding:var(--sp-3) var(--sp-4) calc(var(--sp-3) + env(safe-area-inset-bottom))}
@@ -338,19 +420,21 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 }
 
 /* 바텀시트 */
-.bs-back{position:fixed;inset:0;background:rgba(25,31,40,.48);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.bs-back{position:fixed;inset:0;background:rgba(26,25,23,.5);z-index:60;display:flex;align-items:flex-end;justify-content:center}
 .bs{background:var(--card);width:100%;max-width:520px;border-radius:var(--r-xl) var(--r-xl) 0 0;padding:var(--sp-3) var(--sp-5) calc(var(--sp-5) + env(safe-area-inset-bottom));max-height:90vh;overflow:auto;box-shadow:var(--sh-pop)}
 .bs-grip{width:36px;height:4px;border-radius:var(--r-pill);background:var(--line);margin:0 auto var(--sp-4)}
 .bs h2{font-size:var(--fs-20);font-weight:700;letter-spacing:-.02em}
 .bs .help{margin-top:4px}
 .bs img{display:block;width:100%;max-height:56vh;object-fit:contain;border:1px solid var(--line-2);border-radius:var(--r-md);margin:var(--sp-4) 0;background:var(--soft)}
 .bs-actions{display:flex;gap:var(--sp-2)}
-.bs-actions .btn{--h:var(--h-cta);border-radius:var(--r-md);flex:1;font-size:var(--fs-15)}
+.bs-actions .btn{--h:var(--h-cta);border-radius:var(--r-pill);flex:1;font-size:var(--fs-15)}
 @media (min-width:641px){.bs-back{align-items:center}.bs{border-radius:var(--r-xl);padding-bottom:var(--sp-6)}}
 /* 사이트 메뉴(휴대폰) */
 .drawer{position:fixed;inset:0 auto 0 0;width:min(320px,86vw);background:var(--card);z-index:61;padding:var(--sp-4);box-shadow:var(--sh-pop);display:flex;flex-direction:column;gap:var(--sp-2)}
-.drawer nav a{display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 var(--sp-3);border-radius:var(--r-md);text-decoration:none;font-size:var(--fs-15);color:var(--ink-2)}
-.drawer nav a[aria-current="page"]{background:var(--soft);color:var(--ink);font-weight:700}
+.drawer nav a{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 var(--sp-3);border-radius:var(--r-md);text-decoration:none;font-size:var(--fs-15);color:var(--ink-2)}
+.drawer nav a::before{content:"+";color:var(--mut-2)}
+.drawer nav a[aria-current="page"]{background:var(--bg);color:var(--ink);font-weight:700}
+.drawer nav a[aria-current="page"]::before{color:var(--accent)}
 
 /* ===== 대리점·본사 공통 앱 머리 ===== */
 .app-head{background:var(--card);border-bottom:1px solid var(--line-2)}
@@ -415,7 +499,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 .rrow small{font-size:var(--fs-12);color:var(--mut);font-variant-numeric:tabular-nums;grid-column:1}
 .rrow .chip{grid-row:1/3;grid-column:2}
 .rrow:hover b{color:var(--brand-text)}
-.new-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brand);margin-left:6px;vertical-align:middle}
+.new-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-left:6px;vertical-align:middle}
 
 /* ===== 본사 ===== */
 .seg{display:inline-flex;background:var(--track);border-radius:var(--r-pill);padding:4px;gap:2px;max-width:100%}
@@ -439,7 +523,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 .search{display:flex;align-items:center;gap:8px;height:var(--h-md);padding:0 14px;border:1px solid var(--line);border-radius:var(--r-pill);background:var(--card);width:260px;color:var(--mut)}
 .search input{border:0;outline:0;font-size:var(--fs-14);width:100%;min-width:0;background:none;color:var(--ink)}
 .search input::placeholder{color:var(--mut-2)}
-.search:focus-within{border-color:var(--brand);box-shadow:var(--ring)}
+.search:focus-within{border-color:var(--accent);box-shadow:var(--ring)}
 .sel-sm{height:var(--h-md);border-radius:var(--r-pill);font-size:var(--fs-14);width:auto;padding-left:16px}
 .tfilters{padding:0 var(--sp-6) var(--sp-4);display:flex;gap:var(--sp-2);overflow-x:auto;scrollbar-width:none}
 .tfilters::-webkit-scrollbar{display:none}
@@ -450,7 +534,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 .tbl th:first-child,.tbl td:first-child{padding-left:var(--sp-6)}
 .tbl th:last-child,.tbl td:last-child{padding-right:var(--sp-6)}
 .tbl .r{text-align:right}
-.tbl tbody tr:hover{background:#FAFBFC}
+.tbl tbody tr:hover{background:var(--soft)}
 .tbl .id button{background:none;border:0;padding:0;color:var(--brand-text);font-weight:600;font-variant-numeric:tabular-nums;font-size:var(--fs-14)}
 .tbl .id button:hover{text-decoration:underline}
 .tbl .dt{color:var(--ink-2);font-variant-numeric:tabular-nums}
@@ -469,7 +553,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 .pager{display:flex;gap:4px}
 .pager button{min-width:32px;height:32px;padding:0 6px;border-radius:var(--r-sm);border:0;background:none;font-size:var(--fs-13);font-weight:500;color:var(--ink-2);display:grid;place-items:center;font-variant-numeric:tabular-nums}
 .pager button:hover{background:var(--track)}
-.pager button[aria-current="page"]{background:var(--ink);color:#fff;font-weight:700}
+.pager button[aria-current="page"]{background:var(--brand);color:var(--on-brand);font-weight:700}
 .pager button:disabled{color:var(--mut-2);background:none;cursor:not-allowed}
 @media (max-width:760px){
   .tbar{padding:var(--sp-4)}
@@ -519,11 +603,11 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 .sh-grid thead th{position:sticky;top:0;background:var(--soft);color:var(--mut);font-weight:500;text-align:center;z-index:2;height:24px;font-size:var(--fs-12)}
 .sh-grid .rn{position:sticky;left:0;background:var(--soft);color:var(--mut);text-align:center;min-width:44px;font-size:var(--fs-12);z-index:1}
 .sh-grid thead .rn{z-index:3}
-.sh-grid tr.hdr td{font-weight:700;background:#F9FAFB;color:var(--ink);position:sticky;top:24px;z-index:2}
+.sh-grid tr.hdr td{font-weight:700;background:var(--soft);color:var(--ink);position:sticky;top:24px;z-index:2}
 .sh-grid tr.hdr td.rn{z-index:3}
 .sh-grid td{max-width:220px;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
 .sh-grid td.ed{cursor:cell}
-.sh-grid td.sel{outline:2px solid var(--brand);outline-offset:-2px;background:var(--brand-tint)}
+.sh-grid td.sel{outline:2px solid var(--accent);outline-offset:-2px;background:var(--accent-tint)}
 .sh-grid td.chg{background:var(--warn-bg)}
 .sh-grid td input{width:100%;border:0;outline:0;background:none;font:inherit;padding:0}
 .sh-grid td.f-ok{color:var(--ok);font-weight:600}
@@ -548,7 +632,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 @media print{
   @page{margin:14mm}
   body{background:#fff}
-  .demobar,.s-head,.s-bh,.c-aside,.s-foot,.cert-actions,.cert-top,.view:not(#v-customer),.toast-live,.bs-back,.drawer,#lookupPane,.hero .circle,.dealer-call{display:none!important}
+  .demobar,.s-head,.s-bh,.about,.c-aside,.s-foot,.cert-actions,.cert-top,.view:not(#v-customer),.toast-live,.bs-back,.drawer,#lookupPane,.hero .circle,.dealer-call{display:none!important}
   .site{background:#fff;min-height:0}
   .c-grid{display:block;padding:0}
   .card,.hero{break-inside:avoid}
@@ -589,7 +673,8 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
   <symbol id="i-pause" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/></symbol>
   <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></symbol>
   <symbol id="i-logout" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/></symbol>
-  <symbol id="i-film" viewBox="0 0 24 24"><path d="M4 17.5 8.4 7h11.1v10.5z" fill="#fff"/><path d="M5.9 13 4 17.5h15.5V13z" fill="#8B95A1"/></symbol>
+  <symbol id="i-film" viewBox="0 0 24 24"><path d="M4 17.5 8.4 7h11.1v10.5z" fill="#fff"/><path d="M5.9 13 4 17.5h15.5V13z" fill="#9A968C"/></symbol>
+  <symbol id="i-film-ink" viewBox="0 0 24 24"><path d="M4 17.5 8.4 7h11.1v10.5z" fill="#1A1917"/><path d="M5.9 13 4 17.5h15.5V13z" fill="#9A968C"/></symbol>
 </svg>
 
 <header class="demobar">
@@ -611,7 +696,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
     <header class="s-head">
       <div class="wrap s-head-in">
         <button class="ib ib-plain s-menu" type="button" id="openDrawer" aria-label="사이트 메뉴 열기"><svg class="ic"><use href="#i-menu"/></svg></button>
-        <a class="s-logo" href="#customer"><span class="s-mark"><svg viewBox="0 0 24 24"><use href="#i-film"/></svg></span>새결 오토필름</a>
+        <a class="s-logo" href="#customer"><span class="s-mark"><svg viewBox="0 0 24 24"><use href="#i-film"/></svg></span><span><b>새결</b> 오토필름</span></a>
         <nav class="s-nav" aria-label="사이트 메뉴">
           <a href="#customer" data-fake>썬팅</a><a href="#customer" data-fake>PPF</a><a href="#customer" data-fake>유리막 코팅</a><a href="#customer" data-fake>시공점 찾기</a><a href="#customer" aria-current="page">보증서 확인</a><a href="#customer" data-fake>공지사항</a>
         </nav>
@@ -623,8 +708,23 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
     </header>
 
     <div class="wrap s-bh">
-      <p class="crumb">홈 <svg class="ic"><use href="#i-chev-r"/></svg> 고객센터 <svg class="ic"><use href="#i-chev-r"/></svg> <b>보증서 확인</b></p>
-      <h1 class="greet" id="lkGreet"><span>보증서 확인</span><b>시공 보증서를 번호로 확인해요</b></h1>
+      <section class="bh" id="lkGreet" aria-labelledby="lkTitle">
+        <div>
+          <p class="dot-label">썬팅 · PPF · 유리막 코팅</p>
+          <h1 class="giant" id="lkTitle">보증서 확인</h1>
+          <p class="bh-lead">카카오톡으로 받은 보증번호와 휴대폰 뒷자리로 시공 보증서를 확인해요.</p>
+        </div>
+        <figure class="bh-photo">
+          <img src="https://images.unsplash.com/photo-1722011865035-c32d53dfc543?w=800&amp;q=60&amp;auto=format&amp;fit=crop"
+               srcset="https://images.unsplash.com/photo-1722011865035-c32d53dfc543?w=480&amp;q=60&amp;auto=format&amp;fit=crop 480w, https://images.unsplash.com/photo-1722011865035-c32d53dfc543?w=800&amp;q=60&amp;auto=format&amp;fit=crop 800w, https://images.unsplash.com/photo-1722011865035-c32d53dfc543?w=1200&amp;q=60&amp;auto=format&amp;fit=crop 1200w"
+               sizes="(max-width:640px) calc(100vw - 32px), (max-width:1023px) 560px, 340px"
+               width="800" height="533" alt="어두운 곳에서 찍은 검은 차의 옆 유리" fetchpriority="high" decoding="async">
+          <span class="badge" aria-hidden="true">
+            <svg class="ring" viewBox="0 0 100 100"><defs><path id="badgeArc" d="M50 50m-37 0a37 37 0 1 1 74 0a37 37 0 1 1-74 0"/></defs><text><textPath href="#badgeArc" textLength="230" lengthAdjust="spacing">새결 오토필름 · 시공 보증서 · 새결 오토필름 · 시공 보증서 ·</textPath></text></svg>
+            <span class="s-mark"><svg viewBox="0 0 24 24"><use href="#i-film-ink"/></svg></span>
+          </span>
+        </figure>
+      </section>
       <div class="cert-top" id="certTop" hidden>
         <button class="link" type="button" id="backToLookup"><svg class="ic ic-s"><use href="#i-chev-l"/></svg>다른 번호 조회</button>
         <span class="num" id="certTopNo"></span>
@@ -714,11 +814,28 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
       </aside>
     </div>
 
+    <section class="wrap about" aria-labelledby="hAbout">
+      <div class="ab-in">
+        <div>
+          <p class="dot-label">새결 오토필름</p>
+          <figure class="ab-photo"><img src="https://images.unsplash.com/photo-1780586585338-c56fe47b49f4?w=680&amp;q=45&amp;auto=format&amp;fit=crop" srcset="https://images.unsplash.com/photo-1780586585338-c56fe47b49f4?w=340&amp;q=50&amp;auto=format&amp;fit=crop 340w, https://images.unsplash.com/photo-1780586585338-c56fe47b49f4?w=680&amp;q=45&amp;auto=format&amp;fit=crop 680w" sizes="340px" width="680" height="453" alt="물방울이 맺힌 회색 차 보닛" loading="lazy" decoding="async"></figure>
+        </div>
+        <div>
+          <h2 class="ab-lead" id="hAbout">썬팅·PPF·유리막 코팅을 전국 대리점에서 같은 기준으로 시공하고, 보증서는 본사가 한곳에서 관리해요.</h2>
+          <dl class="ab-nums">
+            <div><dt>전국 대리점</dt><dd><span id="abDealers">22</span><sup>곳</sup></dd></div>
+            <div><dt>최대 보증 기간</dt><dd><span id="abYears">5</span><sup>년</sup></dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
     <footer class="s-foot">
       <div class="wrap">
         <p><b>새결 오토필름</b> · 본사 서울 강남구 · 고객센터 평일 10:00~18:00</p>
         <p>사업자등록번호 000-00-00000 · 통신판매업 신고 0000-서울강남-0000 · 개인정보처리방침</p>
         <p class="c24">이 화면은 카페24 쇼핑몰의 '보증서 확인' 메뉴에 붙인 페이지예요(스마트디자인 화면 추가).</p>
+        <p class="credit">사진 <a href="https://unsplash.com/photos/a-black-and-white-photo-of-a-car-in-the-dark-vVwbcapKjmw" target="_blank" rel="noopener">Joel Durkee</a>, <a href="https://unsplash.com/photos/water-droplets-on-a-metallic-gray-car-hood-tbHzrVqZzbA" target="_blank" rel="noopener">Vitalii Abakumov</a> · Unsplash 무료 라이선스</p>
       </div>
     </footer>
   </div>
@@ -728,7 +845,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 <section class="view" id="v-dealer" aria-label="대리점 발급 화면" hidden>
   <header class="app-head">
     <div class="wrap app-head-in">
-      <span class="s-logo"><span class="s-mark"><svg viewBox="0 0 24 24"><use href="#i-film"/></svg></span>새결 <span>대리점</span></span>
+      <span class="s-logo"><span class="s-mark"><svg viewBox="0 0 24 24"><use href="#i-film"/></svg></span><b>새결</b><span>대리점</span></span>
       <div class="who">
         <span class="tag"><i></i>분당판교점<span class="code">· BD06</span></span>
         <button class="btn btn-ghost btn-sm" type="button" data-fake aria-label="나가기"><svg class="ic"><use href="#i-logout"/></svg><span class="lg">나가기</span></button>
@@ -811,7 +928,7 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 <section class="view" id="v-hq" aria-label="본사 관리 화면" hidden>
   <header class="app-head">
     <div class="wrap app-head-in">
-      <span class="s-logo"><span class="s-mark"><svg viewBox="0 0 24 24"><use href="#i-film"/></svg></span>새결 <span>본사 관리</span></span>
+      <span class="s-logo"><span class="s-mark"><svg viewBox="0 0 24 24"><use href="#i-film"/></svg></span><b>새결</b><span>본사 관리</span></span>
       <div class="who">
         <div class="seg" role="group" aria-label="보기 방식">
           <button type="button" aria-pressed="true" data-hqmode="list"><svg class="ic"><use href="#i-list"/></svg>목록</button>
@@ -909,16 +1026,16 @@ select.input{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 <div class="bs-back" id="drawerBack" hidden style="align-items:stretch;justify-content:flex-start">
   <div class="drawer" role="dialog" aria-modal="true" aria-label="사이트 메뉴">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span class="s-logo"><span class="s-mark"><svg viewBox="0 0 24 24"><use href="#i-film"/></svg></span>새결 오토필름</span>
+      <span class="s-logo"><span class="s-mark"><svg viewBox="0 0 24 24"><use href="#i-film"/></svg></span><span><b>새결</b> 오토필름</span></span>
       <button class="ib ib-plain" type="button" id="closeDrawer" aria-label="메뉴 닫기"><svg class="ic"><use href="#i-x"/></svg></button>
     </div>
     <nav>
-      <a href="#customer" data-fake>썬팅<svg class="ic ic-s"><use href="#i-chev-r"/></svg></a>
-      <a href="#customer" data-fake>PPF<svg class="ic ic-s"><use href="#i-chev-r"/></svg></a>
-      <a href="#customer" data-fake>유리막 코팅<svg class="ic ic-s"><use href="#i-chev-r"/></svg></a>
-      <a href="#customer" data-fake>시공점 찾기<svg class="ic ic-s"><use href="#i-chev-r"/></svg></a>
-      <a href="#customer" aria-current="page" data-close>보증서 확인<svg class="ic ic-s"><use href="#i-chev-r"/></svg></a>
-      <a href="#customer" data-fake>공지사항<svg class="ic ic-s"><use href="#i-chev-r"/></svg></a>
+      <a href="#customer" data-fake>썬팅</a>
+      <a href="#customer" data-fake>PPF</a>
+      <a href="#customer" data-fake>유리막 코팅</a>
+      <a href="#customer" data-fake>시공점 찾기</a>
+      <a href="#customer" aria-current="page" data-close>보증서 확인</a>
+      <a href="#customer" data-fake>공지사항</a>
     </nav>
   </div>
 </div>
@@ -1262,20 +1379,22 @@ function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arc
 function drawCert(r) {
   const W = 1080, P = 72, F = '"Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
   const st = statusOf(r.exp), d = dealerById(r.dealer), left = diffDays(TODAY, r.exp);
-  const colors = {ok: ['#E3F6ED', '#127A4F', '#1FA971'], warn: ['#FFF3D4', '#7A5600', '#F2B01E'], end: ['#F0F2F5', '#4E5968', '#8B95A1']}[st];
+  const colors = {ok: ['#E3F6ED', '#127A4F', '#1FA971'], warn: ['#FFF3D4', '#7A5600', '#F2B01E'], end: ['#EFEDE8', '#4B4943', '#8F8B82']}[st];
   const head = st === 'ok' ? `${fKo(r.exp)}까지 보증돼요` : st === 'warn' ? `${left}일 뒤 보증이 끝나요` : `${fKo(r.exp)}에 보증이 끝났어요`;
+  const css = getComputedStyle(document.documentElement), cv = (k, f) => (css.getPropertyValue(k).trim() || f);
+  const PAPER = cv('--paper', '#F3F1EC'), BRAND = cv('--brand', '#1A1917');
   const c = document.createElement('canvas'); const ctx = c.getContext('2d');
   const rows = [['차량', `${r.car} · ${maskPlate(r.plate)}`], ['시공일', fKo(r.date)], ['휴대폰', maskPhone(r.phone)], ['시공 대리점', `새결 ${d.name} · ${d.tel}`]];
   const H = 872 + rows.length * 76 + r.items.length * 132;
   c.width = W; c.height = H;
-  ctx.fillStyle = '#F7F8FA'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#fff'; rr(ctx, 32, 32, W - 64, H - 64, 40); ctx.fill(); ctx.strokeStyle = '#EBEEF2'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = PAPER; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#fff'; rr(ctx, 32, 32, W - 64, H - 64, 40); ctx.fill(); ctx.strokeStyle = '#E8E5DE'; ctx.lineWidth = 2; ctx.stroke();
   let y = 32 + P;
-  ctx.fillStyle = '#191F28'; rr(ctx, P + 32, y - 8, 48, 48, 12); ctx.fill();
+  ctx.fillStyle = BRAND; ctx.beginPath(); ctx.arc(P + 56, y + 16, 24, 0, 7); ctx.fill();
   const bx = P + 32, by = y - 8, poly = (pts, c) => { ctx.fillStyle = c; ctx.beginPath(); pts.forEach(([px, py], i) => ctx[i ? 'lineTo' : 'moveTo'](bx + px * 2, by + py * 2)); ctx.closePath(); ctx.fill(); };
-  poly([[4, 17.5], [8.4, 7], [19.5, 7], [19.5, 17.5]], '#fff'); poly([[5.9, 13], [4, 17.5], [19.5, 17.5], [19.5, 13]], '#8B95A1');
-  ctx.textBaseline = 'middle'; ctx.fillStyle = '#191F28'; ctx.font = `700 34px ${F}`; ctx.fillText('새결 오토필름', P + 96, y + 16);
-  ctx.textAlign = 'right'; ctx.fillStyle = '#636D7B'; ctx.font = `500 28px ${F}`; ctx.fillText('시공 보증서', W - P - 32, y + 16); ctx.textAlign = 'left';
+  poly([[4, 17.5], [8.4, 7], [19.5, 7], [19.5, 17.5]], '#fff'); poly([[5.9, 13], [4, 17.5], [19.5, 17.5], [19.5, 13]], '#9A968C');
+  ctx.textBaseline = 'middle'; ctx.fillStyle = '#1A1917'; ctx.font = `800 34px ${F}`; ctx.fillText('새결 오토필름', P + 96, y + 16);
+  ctx.textAlign = 'right'; ctx.fillStyle = '#6B6860'; ctx.font = `500 28px ${F}`; ctx.fillText('시공 보증서', W - P - 32, y + 16); ctx.textAlign = 'left';
   y += 88;
   ctx.fillStyle = colors[0]; rr(ctx, P + 32, y, W - 2 * P - 64, 228, 32); ctx.fill();
   const iy = y + 40;
@@ -1283,32 +1402,32 @@ function drawCert(r) {
   ctx.fillStyle = '#fff'; rr(ctx, P + 64, iy, lw, 48, 24); ctx.fill();
   ctx.fillStyle = colors[2]; ctx.beginPath(); ctx.arc(P + 88, iy + 24, 7, 0, 7); ctx.fill();
   ctx.fillStyle = colors[1]; ctx.fillText(lab, P + 104, iy + 25);
-  ctx.fillStyle = '#4E5968'; ctx.font = `500 28px ${F}`; ctx.fillText(`${maskName(r.name)} 님의 시공 보증서`, P + 64, iy + 96);
-  ctx.fillStyle = '#191F28'; ctx.font = `700 44px ${F}`; ctx.fillText(head, P + 64, iy + 148);
+  ctx.fillStyle = '#4B4943'; ctx.font = `500 28px ${F}`; ctx.fillText(`${maskName(r.name)} 님의 시공 보증서`, P + 64, iy + 96);
+  ctx.fillStyle = '#1A1917'; ctx.font = `700 44px ${F}`; ctx.fillText(head, P + 64, iy + 148);
   y += 228 + 48;
   ctx.font = `500 28px ${F}`;
   rows.forEach(([k, v], i) => {
-    if (i) { ctx.fillStyle = '#EBEEF2'; ctx.fillRect(P + 32, y - 2, W - 2 * P - 64, 2); }
-    ctx.fillStyle = '#636D7B'; ctx.font = `500 28px ${F}`; ctx.fillText(k, P + 32, y + 38);
-    ctx.fillStyle = '#191F28'; ctx.font = `600 30px ${F}`; ctx.fillText(v, P + 240, y + 38);
+    if (i) { ctx.fillStyle = '#E8E5DE'; ctx.fillRect(P + 32, y - 2, W - 2 * P - 64, 2); }
+    ctx.fillStyle = '#6B6860'; ctx.font = `500 28px ${F}`; ctx.fillText(k, P + 32, y + 38);
+    ctx.fillStyle = '#1A1917'; ctx.font = `600 30px ${F}`; ctx.fillText(v, P + 240, y + 38);
     y += 76;
   });
   y += 32;
-  ctx.fillStyle = '#191F28'; ctx.font = `700 32px ${F}`; ctx.fillText('시공 제품과 보증 기간', P + 32, y + 20); y += 64;
+  ctx.fillStyle = '#1A1917'; ctx.font = `700 32px ${F}`; ctx.fillText('시공 제품과 보증 기간', P + 32, y + 20); y += 64;
   r.items.forEach(it => {
     const p = prodById(it.pid), s = statusOf(it.exp);
-    ctx.fillStyle = '#F7F8FA'; rr(ctx, P + 32, y, W - 2 * P - 64, 112, 20); ctx.fill();
-    ctx.fillStyle = '#191F28'; ctx.font = `700 30px ${F}`; ctx.fillText(p.type, P + 64, y + 36);
-    ctx.textAlign = 'right'; ctx.fillStyle = s === 'ok' ? '#127A4F' : s === 'warn' ? '#7A5600' : '#4E5968'; ctx.font = `600 26px ${F}`; ctx.fillText(`${ST_LABEL[s]} · ${fDot(it.exp)}까지`, W - P - 64, y + 36); ctx.textAlign = 'left';
-    ctx.fillStyle = '#4E5968'; ctx.font = `500 26px ${F}`;
+    ctx.fillStyle = '#F8F7F4'; rr(ctx, P + 32, y, W - 2 * P - 64, 112, 20); ctx.fill();
+    ctx.fillStyle = '#1A1917'; ctx.font = `700 30px ${F}`; ctx.fillText(p.type, P + 64, y + 36);
+    ctx.textAlign = 'right'; ctx.fillStyle = s === 'ok' ? '#127A4F' : s === 'warn' ? '#7A5600' : '#4B4943'; ctx.font = `600 26px ${F}`; ctx.fillText(`${ST_LABEL[s]} · ${fDot(it.exp)}까지`, W - P - 64, y + 36); ctx.textAlign = 'left';
+    ctx.fillStyle = '#4B4943'; ctx.font = `500 26px ${F}`;
     const line = wrapLines(ctx, `${p.name} · ${detailOf(it)} · 보증 ${p.years}년`, W - 2 * P - 128)[0];
     ctx.fillText(line, P + 64, y + 78);
     y += 132;
   });
   y += 24;
-  ctx.fillStyle = '#EBEEF2'; ctx.fillRect(P + 32, y, W - 2 * P - 64, 2); y += 48;
-  ctx.fillStyle = '#191F28'; ctx.font = `700 34px ${F}`; ctx.fillText(`보증번호 ${fmtCode(r.code)}`, P + 32, y);
-  ctx.fillStyle = '#636D7B'; ctx.font = `500 24px ${F}`;
+  ctx.fillStyle = '#E8E5DE'; ctx.fillRect(P + 32, y, W - 2 * P - 64, 2); y += 48;
+  ctx.fillStyle = '#1A1917'; ctx.font = `700 34px ${F}`; ctx.fillText(`보증번호 ${fmtCode(r.code)}`, P + 32, y);
+  ctx.fillStyle = '#6B6860'; ctx.font = `500 24px ${F}`;
   ctx.fillText(`${fDot(r.issued)} 발급 · 새결 오토필름 '보증서 확인'에서 다시 볼 수 있어요`, P + 32, y + 52);
   ctx.fillText('차를 팔거나 주인이 바뀌면 보증이 끝나요', P + 32, y + 92);
   return c.toDataURL('image/png');
@@ -1668,6 +1787,8 @@ function applyPin() { const on = SETTINGS.pinCheck !== '안 함'; $('#pinField')
 
 /* ---------- 시작 ---------- */
 renderTry(); renderWhere(); renderTypes(); renderIssuedEmpty(); renderRecent();
+$('#abDealers').textContent = DEALERS.length;
+$('#abYears').textContent = Math.max(...PRODUCTS.map(p => p.years));
 const hash = location.hash.slice(1);
 const params = new URLSearchParams(location.search);
 const qNo = params.get('no');
